@@ -445,6 +445,18 @@ s.freeAll;
 
 ---
 
+## SuperCollider Verification
+
+When writing SynthDefs or SC code, ALWAYS verify:
+- UGen argument names and order (they vary between UGens)
+- Envelope specifications (Env.perc, Env.adsr, etc.)
+- Filter/oscillator parameter ranges
+- Trigger vs. gate behavior
+
+Use WebSearch with "site:doc.sccode.org [UGen name]" to confirm syntax.
+
+---
+
 ## Troubleshooting
 
 | Issue | Solution |
