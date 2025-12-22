@@ -7,6 +7,9 @@
 // - Rich harmonic content
 // - New age spirituality
 // - Lush, layered textures
+//
+// NOTE: Pad synths (\celestialPad) have no doneAction and must be
+// manually freed. This is intentional for sustained textures.
 
 // --------------------------------------------------
 // CRYSTAL BELL - Bright, resonant bell tone
@@ -40,26 +43,29 @@ SynthDef(\crystalBell, {
 (
 SynthDef(\celestialPad, {
 	arg out = 0, amp = 0.12, freq = 220;
-	var sig, chorus;
+	var sig, chorus, voices;
 
-	// Multiple detuned voices
-	sig = Mix.fill(8, { |i|
+	// Multiple detuned voices with stereo spread
+	voices = Array.fill(8, { |i|
 		var detune = LFNoise2.kr(0.02 + (i * 0.01)).range(0.995, 1.005);
 		var vibrato = SinOsc.kr(rrand(4, 6) + (i * 0.3)).range(0.998, 1.002);
-		var partial = [1, 2, 3, 4, 5, 6, 7, 8][i];
+		var partial = i + 1;
 		SinOsc.ar(freq * partial * detune * vibrato) * (1 / partial.sqrt);
 	});
 
-	// Chorus effect
-	chorus = sig;
-	chorus = chorus + DelayC.ar(sig, 0.05, SinOsc.kr(0.5).range(0.01, 0.02)) * 0.3;
-	chorus = chorus + DelayC.ar(sig, 0.05, SinOsc.kr(0.7).range(0.015, 0.025)) * 0.25;
+	// Splay across stereo field for celestial width
+	sig = Splay.ar(voices, spread: 0.8, center: 0);
 
-	sig = (sig + chorus) * 0.5;
+	// Stereo chorus effect with different delays per channel
+	chorus = sig;
+	chorus = chorus + DelayC.ar(sig, 0.05, SinOsc.kr([0.5, 0.53]).range(0.01, 0.02)) * 0.3;
+	chorus = chorus + DelayC.ar(sig, 0.05, SinOsc.kr([0.7, 0.73]).range(0.015, 0.025)) * 0.25;
+
+	sig = (sig + chorus) * 0.4;
 
 	sig = LPF.ar(sig, 8000);
 	sig = sig * amp;
-	Out.ar(out, sig ! 2);
+	Out.ar(out, sig);
 }).add;
 )
 

@@ -7,6 +7,9 @@
 // - Early digital textures
 // - Gentle, meditative quality
 // - Voice and synth interplay
+//
+// NOTE: Pad and lead synths (\analogPad, \warmLead) have no doneAction
+// and must be manually freed. This is intentional for sustained voices.
 
 // --------------------------------------------------
 // WARM LEAD - Simple, expressive synth voice
@@ -40,14 +43,16 @@ SynthDef(\warmLead, {
 (
 SynthDef(\analogPad, {
 	arg out = 0, amp = 0.12, freq = 110;
-	var sig;
+	var sig, voices;
 
-	sig = Mix.fill(4, { |i|
+	voices = Array.fill(4, { |i|
 		var partial = i + 1;
 		var detune = LFNoise2.kr(0.02).range(0.998, 1.002);
 		LFTri.ar(freq * partial * detune) * (1 / partial);
 	});
 
+	// Stereo spread for warmth
+	sig = Splay.ar(voices, spread: 0.5, center: 0);
 	sig = sig + (SinOsc.ar(freq) * 0.3);
 
 	// Subtle movement
@@ -55,7 +60,7 @@ SynthDef(\analogPad, {
 
 	sig = LPF.ar(sig, 2500);
 	sig = sig * amp;
-	Out.ar(out, sig ! 2);
+	Out.ar(out, sig);
 }).add;
 )
 

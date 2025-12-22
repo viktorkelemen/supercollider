@@ -7,6 +7,9 @@
 // - Minimal harmonic content
 // - Meditative, contemplative pacing
 // - Subtle filtering and modulation
+//
+// NOTE: Drone synths (\beatingDrone, \subharmonic, \harmonicBeating) have no
+// doneAction and must be manually freed. This is intentional for sustained drones.
 
 // --------------------------------------------------
 // BEATING DRONE - Core beating frequency drone
@@ -14,7 +17,7 @@
 (
 SynthDef(\beatingDrone, {
 	arg out = 0, amp = 0.15, freq = 55, beatFreq = 0.5;
-	var sig, osc1, osc2, osc3;
+	var sig, osc1, osc2, osc3, sigL, sigR;
 
 	// Slightly detuned oscillators create beating
 	osc1 = SinOsc.ar(freq);
@@ -26,8 +29,11 @@ SynthDef(\beatingDrone, {
 	// Very subtle filtering movement
 	sig = LPF.ar(sig, freq * 4 * LFNoise2.kr(0.01).range(0.9, 1.1));
 
-	sig = sig * amp;
-	Out.ar(out, sig ! 2);
+	// Stereo decorrelation - subtle phase difference creates width
+	sigL = DelayC.ar(sig, 0.03, LFNoise2.kr(0.02).range(0.001, 0.003));
+	sigR = DelayC.ar(sig, 0.03, LFNoise2.kr(0.02).range(0.002, 0.004));
+
+	Out.ar(out, [sigL, sigR] * amp);
 }).add;
 )
 
@@ -68,8 +74,8 @@ SynthDef(\slowFilter, {
 	sig = sig + (Saw.ar(freq * 2.01) * 0.15);
 	sig = sig + (SinOsc.ar(freq) * 0.3);
 
-	sig = LPF.ar(sig, filterFreq);
-	sig = LPF.ar(sig, filterFreq * 1.2);  // Extra filtering
+	// Single steeper filter (RLPF with resonance for character)
+	sig = RLPF.ar(sig, filterFreq, 0.7);
 
 	sig = sig * amp;
 	Out.ar(out, sig ! 2);

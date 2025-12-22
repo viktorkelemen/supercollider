@@ -83,26 +83,39 @@ SynthDef(\algoBass, {
 
 // --------------------------------------------------
 // TEXTURE SWARM - Complex evolving texture
+// Using efficient granular synthesis
 // --------------------------------------------------
 (
 SynthDef(\textureSwarm, {
 	arg out = 0, amp = 0.1, centerFreq = 500, spread = 200, density = 20;
-	var sig, freqs;
+	var sig, grains, trig;
 
-	// Swarm of sine tones
-	sig = Mix.fill(12, { |i|
-		var freq = centerFreq + (LFNoise2.kr(0.1 + (i * 0.05)) * spread);
-		var localAmp = LFNoise2.kr(0.2 + (i * 0.03)).range(0.2, 1);
-		SinOsc.ar(freq) * localAmp;
-	}) / 12;
+	// Efficient granular approach using GrainSin
+	trig = Dust.kr(density);
+	grains = GrainSin.ar(
+		numChannels: 2,
+		trigger: trig,
+		dur: LFNoise2.kr(0.5).range(0.05, 0.2),
+		freq: centerFreq + (LFNoise2.kr(0.1) * spread),
+		pan: LFNoise2.kr(0.3),
+		mul: 0.3
+	);
 
-	// Add grain layer
-	sig = sig + (Dust.ar(density) * 0.1);
-	sig = sig + (Crackle.ar(1.5) * 0.05);
+	// Add subtle continuous layer with fewer oscillators
+	sig = Mix.fill(4, { |i|
+		var freq = centerFreq + (LFNoise2.kr(0.08 + (i * 0.02)) * spread * 0.5);
+		SinOsc.ar(freq) * LFNoise2.kr(0.15).range(0.1, 0.3);
+	}) * 0.25;
+
+	sig = sig + grains;
+
+	// Add noise textures
+	sig = sig + (Dust.ar(density * 0.5) * 0.08);
+	sig = sig + (Crackle.ar(1.5) * 0.03);
 
 	sig = LPF.ar(sig, centerFreq * 3);
 	sig = sig * amp;
-	Out.ar(out, sig ! 2);
+	Out.ar(out, sig);
 }).add;
 )
 
