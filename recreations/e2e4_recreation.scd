@@ -237,6 +237,9 @@ var sixteenth = 60 / tempo / 4;
 
 // Variation 2: With bass pulse (like later in E2-E4)
 (
+var tempo = 110;
+var sixteenth = 60 / tempo / 4;
+
 SynthDef(\e2e4Bass, {
     arg out = 0, freq = 69.3, amp = 0.4, gate = 1;
     var sig, env;
@@ -245,9 +248,6 @@ SynthDef(\e2e4Bass, {
     env = EnvGen.kr(Env.perc(0.01, 0.3), gate, doneAction: 2);
     Out.ar(out, Pan2.ar(sig * env * amp, 0));
 }).add;
-
-var tempo = 110;
-var sixteenth = 60 / tempo / 4;
 
 ~pad = Synth(\e2e4Pad, [\freq, 49.midicps, \cutoff, 800]);
 
