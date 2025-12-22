@@ -302,6 +302,408 @@ SynthDef(\motive, {
 // ~twoVoices.();
 // ~v1.stop; ~v2.stop;
 
+// ============================================================
+// PART 2: FRACTAL ARRANGEMENT
+// ============================================================
+// Self-similarity at multiple scales:
+// - Micro: notes within motive
+// - Meso: motives within phrase
+// - Macro: phrases within section
+//
+// Following composition best practices:
+// - Energy arc (intro → build → peak → breath → resolve)
+// - Voice roles (Foundation, Pulse, Focus)
+// - Three voice maximum
+// - Tension → Release cycles
+
+// --------------------------------------------------
+// FRACTAL CONCEPT: Motive shape = Section shape
+// --------------------------------------------------
+// If motive is [0, 4, 0] (arch: up then down)
+// Then section is: build → peak → resolve
+// The motive IS the structure at a different scale
+
+(
+// Map motive intervals to energy levels (0-1)
+~motiveToEnergy = { |motive|
+	var min = motive.minItem;
+	var max = motive.maxItem;
+	var range = max - min;
+	if (range == 0) { range = 1 };
+	motive.collect { |interval|
+		(interval - min) / range;
+	};
+};
+
+// Map energy levels to composition parameters
+~energyToParams = { |energy|
+	(
+		density: energy.linlin(0, 1, 0.3, 1.0),    // Note density
+		register: energy.linlin(0, 1, 48, 72),     // Pitch range
+		voices: energy.linlin(0, 1, 1, 3).round,   // Active voices
+		amp: energy.linlin(0, 1, 0.15, 0.3)        // Volume
+	);
+};
+
+"Fractal mapping ready".postln;
+)
+
+// --------------------------------------------------
+// FRACTAL PHRASE BUILDER
+// --------------------------------------------------
+// Build phrases by repeating motive at different transpositions
+// following its own intervallic pattern
+
+(
+~fractalPhrase = { |motive, root = 60, dur = 0.2|
+	var phrase = [];
+	var transpositions = motive.normalize(0, 7).round;  // Map to transposition levels
+
+	// Each note of motive becomes a transposition point
+	transpositions.do { |trans, i|
+		var transposedMotive = motive + trans;
+		phrase = phrase ++ transposedMotive;
+	};
+
+	~playMotive.(phrase, root, dur);
+};
+
+// Build phrase with variation at each repetition
+~fractalPhraseWithVariation = { |motive, root = 60, dur = 0.2|
+	var variations = [
+		{ |m| m },
+		{ |m| ~invert.(m) },
+		{ |m| ~retrograde.(m) },
+		{ |m| ~retroInvert.(m) }
+	];
+
+	Routine({
+		motive.size.do { |i|
+			var trans = motive[i];
+			var variedMotive = variations.wrapAt(i).(motive);
+			~playMotive.(variedMotive, root + trans, dur);
+			(dur * motive.size).wait;
+		};
+	}).play;
+};
+
+"Fractal phrase builder ready".postln;
+)
+
+// ~fractalPhrase.(~arch, 60, 0.15);
+// ~fractalPhraseWithVariation.(~stepUp, 60, 0.2);
+
+// --------------------------------------------------
+// CANTOR RHYTHM - Fractal silence pattern
+// --------------------------------------------------
+// Cantor set: divide into 3, remove middle
+// Creates nested gaps at multiple scales
+
+(
+~cantorRhythm = { |depth = 3|
+	var pattern = [1];  // Start with one beat
+
+	depth.do {
+		pattern = pattern.collect { |beat|
+			if (beat == 1) { [1, 0, 1] } { [0, 0, 0] };
+		}.flatten;
+	};
+
+	pattern;
+};
+
+~playCantorMotive = { |motive, root = 60, dur = 0.15, depth = 3|
+	var rhythm = ~cantorRhythm.(depth);
+	var noteIndex = 0;
+
+	Routine({
+		rhythm.do { |beat|
+			if (beat == 1) {
+				var note = motive.wrapAt(noteIndex);
+				Synth(\motive, [
+					\freq, (root + note).midicps,
+					\dur, dur * 0.8,
+					\amp, 0.25
+				]);
+				noteIndex = noteIndex + 1;
+			};
+			dur.wait;
+		};
+	}).play;
+};
+
+"Cantor rhythm ready".postln;
+)
+
+// ~playCantorMotive.(~arpUp, 60, 0.12, 3);
+// ~playCantorMotive.(~scale5, 48, 0.1, 4);
+
+// --------------------------------------------------
+// GOLDEN RATIO SECTIONS
+// --------------------------------------------------
+// Phi ≈ 0.618 - natural proportion for tension/release
+
+(
+~phi = 0.618;
+
+// Divide duration by golden ratio for climax placement
+~goldenClimax = { |totalDur|
+	totalDur * ~phi;  // Climax at ~62% through
+};
+
+// Generate golden-proportioned section lengths
+~goldenSections = { |totalDur, numSections = 5|
+	var sections = [];
+	var remaining = totalDur;
+
+	(numSections - 1).do {
+		var sectionDur = remaining * (1 - ~phi);
+		sections = sections.add(sectionDur);
+		remaining = remaining - sectionDur;
+	};
+	sections = sections.add(remaining);  // Final section
+
+	sections;
+};
+
+"Golden ratio ready".postln;
+)
+
+// ~goldenSections.(60, 5);  // Returns section durations
+
+// --------------------------------------------------
+// ENERGY ARC - Maps composition structure to time
+// --------------------------------------------------
+
+(
+// Section definitions following COMPOSITION.md
+~sections = (
+	intro:      (energy: 0.2, voices: 1, desc: "establish mood"),
+	develop:    (energy: 0.5, voices: 2, desc: "add movement"),
+	peak:       (energy: 1.0, voices: 3, desc: "maximum density"),
+	breakdown:  (energy: 0.3, voices: 1, desc: "create absence"),
+	resolve:    (energy: 0.4, voices: 2, desc: "partial return")
+);
+
+// Get section at normalized time (0-1)
+~sectionAt = { |time|
+	case
+	{ time < 0.2 }  { \intro }
+	{ time < 0.5 }  { \develop }
+	{ time < 0.7 }  { \peak }
+	{ time < 0.85 } { \breakdown }
+	{ true }        { \resolve };
+};
+
+// Energy curve (tension/release)
+~energyAt = { |time|
+	var section = ~sectionAt.(time);
+	~sections[section][\energy];
+};
+
+"Energy arc ready".postln;
+)
+
+// --------------------------------------------------
+// FRACTAL COMPOSITION - Full piece generator
+// --------------------------------------------------
+
+(
+~fractalComposition = { |motive, totalDur = 60, root = 60|
+	var sectionDurs = ~goldenSections.(totalDur, 5);
+	var sectionNames = [\intro, \develop, \peak, \breakdown, \resolve];
+	var elapsed = 0;
+
+	~compositionRoutine = Routine({
+		sectionNames.do { |sectionName, i|
+			var dur = sectionDurs[i];
+			var section = ~sections[sectionName];
+			var numPhrases = (dur / 4).floor.max(1);  // ~4 sec per phrase
+			var phraseDur = dur / numPhrases;
+
+			("=== " ++ sectionName.asString.toUpper ++ " ===").postln;
+			("Duration: " ++ dur.round(0.1) ++ "s, Voices: " ++ section[\voices]).postln;
+
+			numPhrases.do { |phraseNum|
+				var energy = section[\energy];
+				var noteDur = energy.linlin(0, 1, 0.3, 0.12);
+				var variation = [
+					{ |m| m },
+					{ |m| ~invert.(m) },
+					{ |m| ~retrograde.(m) }
+				].choose;
+
+				// Apply fractal: motive shape at phrase level
+				section[\voices].do { |voice|
+					var pan = voice.linlin(0, 2, -0.5, 0.5);
+					var octave = [-12, 0, 12].wrapAt(voice);
+					var varMotive = variation.(motive);
+
+					fork {
+						// Stagger voice entries
+						(voice * 0.1).wait;
+						~playMotive.(varMotive, root + octave, noteDur, energy * 0.15, pan);
+					};
+				};
+
+				phraseDur.wait;
+			};
+
+			elapsed = elapsed + dur;
+		};
+
+		"=== COMPOSITION COMPLETE ===".postln;
+	}).play;
+};
+
+~stopComposition = {
+	~compositionRoutine.stop;
+	s.freeAll;
+};
+
+"Fractal composition ready".postln;
+"Use: ~fractalComposition.(~arch, 30, 60)".postln;
+)
+
+// ~fractalComposition.(~arch, 30, 60);
+// ~stopComposition.();
+
+// --------------------------------------------------
+// VOICE ROLES - From composition guide
+// --------------------------------------------------
+
+(
+SynthDef(\foundation, {
+	arg out = 0, freq = 55, amp = 0.2, dur = 2;
+	var sig, env;
+	env = EnvGen.kr(Env.linen(0.1, dur - 0.3, 0.2), doneAction: 2);
+	sig = SinOsc.ar(freq) + (SinOsc.ar(freq * 2) * 0.1);
+	sig = LPF.ar(sig, 200);
+	sig = sig * env * amp;
+	Out.ar(out, sig ! 2);
+}).add;
+
+SynthDef(\pulse, {
+	arg out = 0, freq = 220, amp = 0.15, dur = 0.1, rate = 4;
+	var sig, env, trig;
+	env = EnvGen.kr(Env.perc(0.005, dur), doneAction: 2);
+	sig = Pulse.ar(freq, 0.3) * 0.3;
+	sig = sig + SinOsc.ar(freq);
+	sig = LPF.ar(sig, freq * 3);
+	sig = sig * env * amp;
+	Out.ar(out, sig ! 2);
+}).add;
+
+"Voice role synths ready".postln;
+)
+
+// --------------------------------------------------
+// FULL FRACTAL PIECE - Three voice roles
+// --------------------------------------------------
+
+(
+~fractalPiece = { |motive, totalDur = 60, root = 48|
+	var sectionDurs = ~goldenSections.(totalDur, 5);
+	var sectionNames = [\intro, \develop, \peak, \breakdown, \resolve];
+	var elapsed = 0;
+
+	~pieceRoutines = [];
+
+	// FOUNDATION voice (slow harmonic anchor)
+	~pieceRoutines = ~pieceRoutines.add(Routine({
+		var baseNotes = [0, 5, 7, 0];  // I - IV - V - I
+		var noteIndex = 0;
+
+		1.wait;  // Let piece establish
+
+		inf.do {
+			var section = ~sectionAt.(elapsed / totalDur);
+			var energy = ~sections[section][\energy];
+
+			if (energy > 0.3) {  // Foundation present except quiet sections
+				Synth(\foundation, [
+					\freq, (root + baseNotes.wrapAt(noteIndex)).midicps,
+					\amp, energy * 0.12,
+					\dur, 3
+				]);
+				noteIndex = noteIndex + 1;
+			};
+
+			rrand(2.5, 4.0).wait;
+		};
+	}));
+
+	// PULSE voice (steady rhythmic)
+	~pieceRoutines = ~pieceRoutines.add(Routine({
+		sectionDurs[0].wait;  // Enter after intro
+
+		inf.do {
+			var section = ~sectionAt.(elapsed / totalDur);
+			var energy = ~sections[section][\energy];
+
+			if (energy > 0.4) {  // Pulse in active sections
+				4.do {
+					Synth(\pulse, [
+						\freq, (root + 12 + [0, 7, 12].choose).midicps,
+						\amp, energy * 0.08,
+						\dur, 0.15
+					]);
+					0.25.wait;
+				};
+			} {
+				1.wait;
+			};
+		};
+	}));
+
+	// FOCUS voice (melodic, uses the motive)
+	~pieceRoutines = ~pieceRoutines.add(Routine({
+		inf.do {
+			var section = ~sectionAt.(elapsed / totalDur);
+			var energy = ~sections[section][\energy];
+			var noteDur = energy.linlin(0, 1, 0.35, 0.15);
+			var variation = [
+				{ |m| m },
+				{ |m| ~invert.(m) },
+				{ |m| ~retrograde.(m) }
+			].wchoose([0.5, 0.25, 0.25]);
+
+			~playMotive.(variation.(motive), root + 24, noteDur, energy * 0.2, 0);
+			(noteDur * motive.size + rrand(0.5, 2.0)).wait;
+		};
+	}));
+
+	// Time tracker
+	~pieceRoutines = ~pieceRoutines.add(Routine({
+		inf.do {
+			elapsed = elapsed + 0.1;
+			if (elapsed >= totalDur) {
+				"Piece complete".postln;
+				~stopPiece.();
+			};
+			0.1.wait;
+		};
+	}));
+
+	// Start all voices
+	~pieceRoutines.do(_.play);
+
+	("Playing " ++ totalDur ++ " second piece with motive: " ++ motive).postln;
+};
+
+~stopPiece = {
+	~pieceRoutines.do(_.stop);
+	s.freeAll;
+	"Stopped".postln;
+};
+
+"Full fractal piece ready".postln;
+"Use: ~fractalPiece.(~arch, 45, 48)".postln;
+)
+
+// ~fractalPiece.(~arch, 45, 48);
+// ~stopPiece.();
+
 // --------------------------------------------------
 // STOP ALL
 // --------------------------------------------------
