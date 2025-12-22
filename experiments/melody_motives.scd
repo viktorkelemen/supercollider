@@ -597,112 +597,279 @@ SynthDef(\pulse, {
 "Voice role synths ready".postln;
 )
 
-// --------------------------------------------------
-// FULL FRACTAL PIECE - Three voice roles
-// --------------------------------------------------
+// ============================================================
+// 5-MINUTE PIECE - Following COMPOSITION.md exactly
+// ============================================================
+// Timings from composition guide:
+// - Intro:       0:00-1:00 (60s)  - One element, establish mood
+// - Development: 1:00-2:30 (90s)  - Add pulse, harmonic movement
+// - Peak:        2:30-3:30 (60s)  - Maximum density, all voices
+// - Breakdown:   3:30-4:15 (45s)  - Strip to foundation
+// - Resolution:  4:15-5:00 (45s)  - Partial return, fade
 
 (
-~fractalPiece = { |motive, totalDur = 60, root = 48|
-	var sectionDurs = ~goldenSections.(totalDur, 5);
-	var sectionNames = [\intro, \develop, \peak, \breakdown, \resolve];
-	var elapsed = 0;
+// Exact section timings (in seconds)
+~fiveMinSections = (
+	intro:      (start: 0,   dur: 60,  voices: 1, energy: 0.2),
+	develop:    (start: 60,  dur: 90,  voices: 2, energy: 0.5),
+	peak:       (start: 150, dur: 60,  voices: 3, energy: 1.0),
+	breakdown:  (start: 210, dur: 45,  voices: 1, energy: 0.3),
+	resolve:    (start: 255, dur: 45,  voices: 2, energy: 0.4)
+);
 
-	~pieceRoutines = [];
+~getSectionAt = { |elapsed|
+	case
+	{ elapsed < 60 }  { \intro }
+	{ elapsed < 150 } { \develop }
+	{ elapsed < 210 } { \peak }
+	{ elapsed < 255 } { \breakdown }
+	{ true }          { \resolve };
+};
 
-	// FOUNDATION voice (slow harmonic anchor)
-	~pieceRoutines = ~pieceRoutines.add(Routine({
-		var baseNotes = [0, 5, 7, 0];  // I - IV - V - I
-		var noteIndex = 0;
+"5-minute structure loaded".postln;
+)
 
-		1.wait;  // Let piece establish
+// --------------------------------------------------
+// THE 5-MINUTE PIECE
+// --------------------------------------------------
+(
+~fiveMinutePiece = { |motive, root = 48|
+	var totalDur = 300;  // 5 minutes
 
-		inf.do {
-			var section = ~sectionAt.(elapsed / totalDur);
-			var energy = ~sections[section][\energy];
+	~elapsed = 0;
+	~running = true;
+	~routines = [];
 
-			if (energy > 0.3) {  // Foundation present except quiet sections
+	// Harmony progression (changes every ~20 seconds)
+	~chordRoots = [0, 0, 5, 5, 7, 7, 5, 0];  // I-I-IV-IV-V-V-IV-I
+	~currentChord = 0;
+
+	// ========================================
+	// FOUNDATION VOICE - Slow bass anchor
+	// ========================================
+	~routines = ~routines.add(Routine({
+		loop {
+			var section = ~getSectionAt.(~elapsed);
+			var info = ~fiveMinSections[section];
+
+			if (info[\energy] >= 0.3) {
+				var chordRoot = ~chordRoots.wrapAt(~currentChord);
 				Synth(\foundation, [
-					\freq, (root + baseNotes.wrapAt(noteIndex)).midicps,
-					\amp, energy * 0.12,
-					\dur, 3
+					\freq, (root + chordRoot).midicps,
+					\amp, info[\energy] * 0.15,
+					\dur, 4
 				]);
-				noteIndex = noteIndex + 1;
 			};
 
-			rrand(2.5, 4.0).wait;
+			4.wait;
+			~currentChord = ~currentChord + 1;
 		};
 	}));
 
-	// PULSE voice (steady rhythmic)
-	~pieceRoutines = ~pieceRoutines.add(Routine({
-		sectionDurs[0].wait;  // Enter after intro
+	// ========================================
+	// PULSE VOICE - Rhythmic element
+	// ========================================
+	~routines = ~routines.add(Routine({
+		60.wait;  // Enter at Development (1:00)
 
-		inf.do {
-			var section = ~sectionAt.(elapsed / totalDur);
-			var energy = ~sections[section][\energy];
+		loop {
+			var section = ~getSectionAt.(~elapsed);
+			var info = ~fiveMinSections[section];
 
-			if (energy > 0.4) {  // Pulse in active sections
-				4.do {
+			if (info[\energy] >= 0.5) {
+				// Active pulse
+				8.do {
+					var chordRoot = ~chordRoots.wrapAt(~currentChord);
 					Synth(\pulse, [
-						\freq, (root + 12 + [0, 7, 12].choose).midicps,
-						\amp, energy * 0.08,
-						\dur, 0.15
+						\freq, (root + 12 + chordRoot + [0, 7].choose).midicps,
+						\amp, info[\energy] * 0.06,
+						\dur, 0.12
 					]);
 					0.25.wait;
 				};
+			} {
+				// Rest during quiet sections
+				2.wait;
+			};
+		};
+	}));
+
+	// ========================================
+	// FOCUS VOICE - Melodic motives
+	// ========================================
+	~routines = ~routines.add(Routine({
+		var variations = [
+			{ |m| m },                    // Original
+			{ |m| ~invert.(m) },          // Inverted
+			{ |m| ~retrograde.(m) },      // Retrograde
+			{ |m| ~retroInvert.(m) }      // Retrograde-invert
+		];
+		var variationWeights = [0.4, 0.25, 0.2, 0.15];
+		var phraseCount = 0;
+
+		2.wait;  // Let intro establish
+
+		loop {
+			var section = ~getSectionAt.(~elapsed);
+			var info = ~fiveMinSections[section];
+			var chordRoot = ~chordRoots.wrapAt(~currentChord);
+
+			// Note duration based on energy (faster at peak)
+			var noteDur = info[\energy].linlin(0.2, 1.0, 0.4, 0.15);
+
+			// Select variation (more variety at peak)
+			var variation = if (section == \peak) {
+				variations.wchoose(variationWeights);
+			} {
+				variations.wchoose([0.6, 0.2, 0.15, 0.05]);
+			};
+
+			// Play motive transposed to current harmony
+			~playMotive.(
+				variation.(motive),
+				root + 24 + chordRoot,
+				noteDur,
+				info[\energy] * 0.2,
+				0
+			);
+
+			// Gap between phrases (shorter at peak, longer at intro)
+			(noteDur * motive.size + info[\energy].linlin(0.2, 1.0, 2.5, 0.5)).wait;
+
+			phraseCount = phraseCount + 1;
+		};
+	}));
+
+	// ========================================
+	// SECOND MELODIC VOICE - Counterpoint (Peak only)
+	// ========================================
+	~routines = ~routines.add(Routine({
+		150.wait;  // Enter at Peak (2:30)
+
+		loop {
+			var section = ~getSectionAt.(~elapsed);
+
+			if (section == \peak) {
+				var chordRoot = ~chordRoots.wrapAt(~currentChord);
+				var variation = [
+					{ |m| ~invert.(m) },
+					{ |m| ~retrograde.(m) }
+				].choose;
+
+				// Offset entry for counterpoint effect
+				rrand(0.1, 0.3).wait;
+
+				~playMotive.(
+					variation.(motive),
+					root + 12 + chordRoot,  // Lower octave
+					0.2,
+					0.12,
+					[-0.4, 0.4].choose  // Panned
+				);
+
+				rrand(1.5, 3.0).wait;
 			} {
 				1.wait;
 			};
 		};
 	}));
 
-	// FOCUS voice (melodic, uses the motive)
-	~pieceRoutines = ~pieceRoutines.add(Routine({
-		inf.do {
-			var section = ~sectionAt.(elapsed / totalDur);
-			var energy = ~sections[section][\energy];
-			var noteDur = energy.linlin(0, 1, 0.35, 0.15);
-			var variation = [
-				{ |m| m },
-				{ |m| ~invert.(m) },
-				{ |m| ~retrograde.(m) }
-			].wchoose([0.5, 0.25, 0.25]);
+	// ========================================
+	// SECTION ANNOUNCER & TIME TRACKER
+	// ========================================
+	~routines = ~routines.add(Routine({
+		var lastSection = nil;
 
-			~playMotive.(variation.(motive), root + 24, noteDur, energy * 0.2, 0);
-			(noteDur * motive.size + rrand(0.5, 2.0)).wait;
-		};
-	}));
+		loop {
+			var section = ~getSectionAt.(~elapsed);
+			var mins = (~elapsed / 60).floor.asInteger;
+			var secs = (~elapsed % 60).floor.asInteger;
 
-	// Time tracker
-	~pieceRoutines = ~pieceRoutines.add(Routine({
-		inf.do {
-			elapsed = elapsed + 0.1;
-			if (elapsed >= totalDur) {
-				"Piece complete".postln;
-				~stopPiece.();
+			// Announce section changes
+			if (section != lastSection) {
+				("").postln;
+				("=== " ++ section.asString.toUpper ++ " === [" ++
+					mins ++ ":" ++ secs.asString.padLeft(2, "0") ++ "]").postln;
+				lastSection = section;
 			};
-			0.1.wait;
+
+			// End piece
+			if (~elapsed >= totalDur) {
+				"".postln;
+				"=== PIECE COMPLETE ===".postln;
+				~stopFiveMin.();
+			};
+
+			~elapsed = ~elapsed + 0.5;
+			0.5.wait;
 		};
 	}));
 
-	// Start all voices
-	~pieceRoutines.do(_.play);
+	// Start all routines
+	~routines.do(_.play);
 
-	("Playing " ++ totalDur ++ " second piece with motive: " ++ motive).postln;
+	"".postln;
+	"╔════════════════════════════════════════╗".postln;
+	("║  5-MINUTE PIECE: " ++ motive).postln;
+	("║  Root: " ++ root ++ " (" ++ root.midicps.round(0.1) ++ " Hz)").postln;
+	"╠════════════════════════════════════════╣".postln;
+	"║  0:00  INTRO      - Focus alone        ║".postln;
+	"║  1:00  DEVELOP    - Add pulse          ║".postln;
+	"║  2:30  PEAK       - Full density       ║".postln;
+	"║  3:30  BREAKDOWN  - Strip back         ║".postln;
+	"║  4:15  RESOLVE    - Fade out           ║".postln;
+	"╚════════════════════════════════════════╝".postln;
 };
 
-~stopPiece = {
-	~pieceRoutines.do(_.stop);
+~stopFiveMin = {
+	~running = false;
+	~routines.do(_.stop);
 	s.freeAll;
 	"Stopped".postln;
 };
 
-"Full fractal piece ready".postln;
-"Use: ~fractalPiece.(~arch, 45, 48)".postln;
+"5-minute piece ready".postln;
+"Use: ~fiveMinutePiece.(~arch, 48)".postln;
 )
 
-// ~fractalPiece.(~arch, 45, 48);
-// ~stopPiece.();
+// --------------------------------------------------
+// RUN THE 5-MINUTE PIECE
+// --------------------------------------------------
+// ~fiveMinutePiece.(~arch, 48);        // Arch motive in C
+// ~fiveMinutePiece.(~leapStep, 53);    // Leap-step in F
+// ~fiveMinutePiece.(~scale5, 45);      // Pentatonic in A
+// ~stopFiveMin.();
+
+// --------------------------------------------------
+// QUICK TEST (30 seconds, same structure compressed)
+// --------------------------------------------------
+(
+~testPiece = { |motive, root = 48|
+	// Compressed version for testing
+	~fiveMinSections = (
+		intro:      (start: 0,  dur: 6,  voices: 1, energy: 0.2),
+		develop:    (start: 6,  dur: 9,  voices: 2, energy: 0.5),
+		peak:       (start: 15, dur: 6,  voices: 3, energy: 1.0),
+		breakdown:  (start: 21, dur: 4,  voices: 1, energy: 0.3),
+		resolve:    (start: 25, dur: 5,  voices: 2, energy: 0.4)
+	);
+
+	~getSectionAt = { |elapsed|
+		case
+		{ elapsed < 6 }  { \intro }
+		{ elapsed < 15 } { \develop }
+		{ elapsed < 21 } { \peak }
+		{ elapsed < 25 } { \breakdown }
+		{ true }         { \resolve };
+	};
+
+	"TEST MODE: 30 second piece".postln;
+	~fiveMinutePiece.(motive, root);
+};
+)
+
+// ~testPiece.(~arch, 48);
+// ~stopFiveMin.();
 
 // --------------------------------------------------
 // STOP ALL
