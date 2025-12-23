@@ -1,18 +1,19 @@
 // ============================================================
 // MIDORI TAKADA - RITUAL EXTENDED - MIDI FILE EXPORT
-// Generates a MIDI file of the piece
+// Generates separate MIDI files for each voice
 // ============================================================
-// Requires SimpleMIDIFile quark:
-//   Quarks.install("SimpleMIDIFile");
+// Requires wslib quark: Quarks.install("wslib");
 
 (
-var m, pattern, accents, phraseLen, stepDur;
+var pattern, accents, phraseLen, stepDur;
 var totalDuration, introEnd, developEnd, peakEnd, breakdownEnd;
 var numPhrases, getTimbre, getDensity;
 var freqToMidi;
+var mMarimba, mGong, mWoodBlock, mFills, mSparkle, mAll;
+var basePath;
 
-// Output path
-~midiPath = "~/Music/midori_takada_ritual.mid".standardizePath;
+// Output path base
+basePath = "~/Music/midori_takada_ritual".standardizePath;
 
 // Helper: freq to MIDI note
 freqToMidi = { |freq| (12 * (freq / 440).log2 + 69).round.asInteger };
@@ -68,109 +69,135 @@ getDensity = { |time|
 		{ 0.35 }
 };
 
-// ---- Create MIDI file ----
-m = SimpleMIDIFile(~midiPath);
-m.init1(1, 120, "4/4");  // 1 track, 120 BPM, 4/4 time
+// ---- Create MIDI files ----
+// Separate file for each voice
+mMarimba = SimpleMIDIFile(basePath ++ "_marimba.mid");
+mGong = SimpleMIDIFile(basePath ++ "_gong.mid");
+mWoodBlock = SimpleMIDIFile(basePath ++ "_woodblock.mid");
+mFills = SimpleMIDIFile(basePath ++ "_fills.mid");
+mSparkle = SimpleMIDIFile(basePath ++ "_sparkle.mid");
+mAll = SimpleMIDIFile(basePath ++ "_all.mid");
 
-// MIDI channels:
-// 0 = Marimba (pulse)
-// 1 = Gong
-// 2 = Wood blocks
-// 3 = High fills
-// 4 = Sparkle
+// Initialize all files
+[mMarimba, mGong, mWoodBlock, mFills, mSparkle].do { |m|
+	m.init1(1, 120, "4/4");
+	m.timeMode = \seconds;
+};
+mAll.init1(5, 120, "4/4");
+mAll.timeMode = \seconds;
 
 numPhrases = (totalDuration / phraseLen).floor.asInteger;
 
 // Opening gong
-m.addNote(36, 100, 0, 4, 1);  // Low C, vel 100, time 0, dur 4 beats, channel 1
+mGong.addNote(36, 100, 0.1, 8, 0);
+mAll.addNote(36, 100, 0.1, 8, 1);
 
 numPhrases.do { |phraseNum|
-	var phraseStart, timbre, density, time, vel;
+	var phraseStart, timbre, density, vel;
 	phraseStart = phraseNum * phraseLen;
 	timbre = getTimbre.value(phraseStart);
 	density = getDensity.value(phraseStart);
 
-	// Convert time to beats (at 120 BPM, 1 sec = 2 beats)
-	phraseStart = phraseStart * 2;
-
 	// Gong scheduling
-	if (phraseStart < (introEnd * 2)) {
+	if (phraseStart < introEnd) {
 		if ((phraseNum % 12 == 0) and: (phraseNum > 0)) {
-			m.addNote(36, 80, phraseStart, 4, 1);
+			mGong.addNote(36, 80, phraseStart, 6, 0);
+			mAll.addNote(36, 80, phraseStart, 6, 1);
 		};
 	};
-	if ((phraseStart >= (introEnd * 2)) and: (phraseStart < (developEnd * 2))) {
+	if ((phraseStart >= introEnd) and: (phraseStart < developEnd)) {
 		if (phraseNum % 10 == 0) {
-			m.addNote(36, 90, phraseStart, 3.5, 1);
+			mGong.addNote(36, 90, phraseStart, 5, 0);
+			mAll.addNote(36, 90, phraseStart, 5, 1);
 		};
 	};
-	if ((phraseStart >= (developEnd * 2)) and: (phraseStart < (peakEnd * 2))) {
+	if ((phraseStart >= developEnd) and: (phraseStart < peakEnd)) {
 		if (phraseNum % 7 == 0) {
-			m.addNote(36, 100, phraseStart, 3, 1);
+			mGong.addNote(36, 100, phraseStart, 4, 0);
+			mAll.addNote(36, 100, phraseStart, 4, 1);
 		};
 	};
-	if ((phraseStart >= (peakEnd * 2)) and: (phraseStart < (breakdownEnd * 2))) {
+	if ((phraseStart >= peakEnd) and: (phraseStart < breakdownEnd)) {
 		if (phraseNum % 15 == 0) {
-			m.addNote(36, 80, phraseStart, 4, 1);
+			mGong.addNote(36, 80, phraseStart, 6, 0);
+			mAll.addNote(36, 80, phraseStart, 6, 1);
 		};
 	};
 
 	// Marimba pattern
 	8.do { |step|
 		var noteTime, freq, midi, isAccent, dur;
-		noteTime = phraseStart + (step * stepDur * 2);
+		noteTime = phraseStart + (step * stepDur);
 		freq = pattern[step];
 		midi = freqToMidi.value(freq);
 		isAccent = accents[step] == 1;
 
 		if (isAccent or: (density > 0.5.rand)) {
 			vel = if(isAccent, (100 * density).asInteger, (70 * density).asInteger);
-			dur = if(isAccent, 0.5, 0.25);
-			m.addNote(midi, vel.clip(40, 127), noteTime, dur, 0);
+			dur = if(isAccent, 1.0, 0.5);
+			mMarimba.addNote(midi, vel.clip(40, 127), noteTime, dur, 0);
+			mAll.addNote(midi, vel.clip(40, 127), noteTime, dur, 0);
 		};
 	};
 
 	// Wood blocks
-	if ((phraseStart >= (introEnd * 2)) and: (phraseStart < (breakdownEnd * 2))) {
+	if ((phraseStart >= introEnd) and: (phraseStart < breakdownEnd)) {
 		if ((phraseNum % 2 == 0) and: (density > 0.6)) {
-			m.addNote(76, (60 * density).asInteger, phraseStart, 0.1, 2);  // High E
+			mWoodBlock.addNote(76, (60 * density).asInteger, phraseStart, 0.1, 0);
+			mAll.addNote(76, (60 * density).asInteger, phraseStart, 0.1, 2);
 		};
 		if ((phraseNum % 3 == 0) and: (density > 0.7)) {
-			m.addNote(77, (50 * density).asInteger, phraseStart + (3 * stepDur * 2), 0.1, 2);
+			mWoodBlock.addNote(77, (50 * density).asInteger, phraseStart + (3 * stepDur), 0.1, 0);
+			mAll.addNote(77, (50 * density).asInteger, phraseStart + (3 * stepDur), 0.1, 2);
 		};
 	};
 
 	// Movement layer (high fills)
-	if ((phraseStart >= (35 * 2)) and: (phraseStart < (peakEnd * 2))) {
+	if ((phraseStart >= 35) and: (phraseStart < peakEnd)) {
 		if (density > 0.7) {
-			m.addNote(freqToMidi.value(pattern.choose * 2), (80 * density).asInteger,
-				phraseStart + (5 * stepDur * 2), 0.3, 3);
+			var midi = freqToMidi.value(pattern.choose * 2);
+			mFills.addNote(midi, (80 * density).asInteger, phraseStart + (5 * stepDur), 0.4, 0);
+			mAll.addNote(midi, (80 * density).asInteger, phraseStart + (5 * stepDur), 0.4, 3);
 		};
 		if ((phraseNum % 2 == 0) and: (density > 0.8)) {
-			m.addNote(freqToMidi.value(pattern.choose * 2), (70 * density).asInteger,
-				phraseStart + (2 * stepDur * 2), 0.25, 3);
+			var midi = freqToMidi.value(pattern.choose * 2);
+			mFills.addNote(midi, (70 * density).asInteger, phraseStart + (2 * stepDur), 0.35, 0);
+			mAll.addNote(midi, (70 * density).asInteger, phraseStart + (2 * stepDur), 0.35, 3);
 		};
 	};
 
 	// Sparkle layer
-	if ((phraseStart >= (developEnd * 2)) and: (phraseStart < (peakEnd * 2))) {
+	if ((phraseStart >= developEnd) and: (phraseStart < peakEnd)) {
 		if (phraseNum % 2 == 1) {
-			m.addNote(freqToMidi.value(pattern.choose * 4), 50,
-				phraseStart + (4 * stepDur * 2), 0.15, 4);
+			var midi = freqToMidi.value(pattern.choose * 4);
+			mSparkle.addNote(midi, 50, phraseStart + (4 * stepDur), 0.25, 0);
+			mAll.addNote(midi, 50, phraseStart + (4 * stepDur), 0.25, 4);
 		};
 		if (phraseNum % 3 == 0) {
-			m.addNote(freqToMidi.value(pattern.choose * 4), 45,
-				phraseStart + (7 * stepDur * 2), 0.12, 4);
+			var midi = freqToMidi.value(pattern.choose * 4);
+			mSparkle.addNote(midi, 45, phraseStart + (7 * stepDur), 0.2, 0);
+			mAll.addNote(midi, 45, phraseStart + (7 * stepDur), 0.2, 4);
 		};
 	};
 };
 
 // Final gong
-m.addNote(36, 100, (totalDuration - 5) * 2, 6, 1);
+mGong.addNote(36, 100, totalDuration - 5, 10, 0);
+mAll.addNote(36, 100, totalDuration - 5, 10, 1);
 
-// Write file
-m.write;
+// Write all files
+mMarimba.write;
+mGong.write;
+mWoodBlock.write;
+mFills.write;
+mSparkle.write;
+mAll.write;
 
-"MIDI file written to: %".format(~midiPath).postln;
-"Channels: 0=Marimba, 1=Gong, 2=WoodBlock, 3=Fills, 4=Sparkle".postln;
+"MIDI files written to ~/Music/".postln;
+"  - midori_takada_ritual_marimba.mid".postln;
+"  - midori_takada_ritual_gong.mid".postln;
+"  - midori_takada_ritual_woodblock.mid".postln;
+"  - midori_takada_ritual_fills.mid".postln;
+"  - midori_takada_ritual_sparkle.mid".postln;
+"  - midori_takada_ritual_all.mid (all voices)".postln;
 )
