@@ -1,8 +1,8 @@
 // ============================================================
 // BOUNCING BALL - Multiple Balls (Quantized Grid)
 // ============================================================
-// All balls snap to a common beat grid that accelerates
-// Creates rhythmic cohesion while maintaining bounce physics
+// Each ball plays the same accelerating grid pattern
+// But offset in time (0s, 10s, 20s) - creates staggered canon
 
 (
 SynthDef(\combTone, {
@@ -25,11 +25,11 @@ Routine({
 	var maxInterval = 2.0;
 	var minInterval = 0.06;
 	var interval, progress;
-	// Ball configs: [freq, combFreq, pan, startIndex, ampScale]
+	// Ball configs: [freq, combFreq, pan, timeOffset, ampScale]
 	var balls = [
-		[60, 150, -0.6, 0, 1.0],       // Low ball, left, starts at beat 0
-		[100, 250, 0, 8, 0.8],         // Mid ball, center, starts at beat 8 (~10s)
-		[150, 350, 0.6, 16, 0.6],      // High ball, right, starts at beat 16 (~18s)
+		[60, 150, -0.6, 0, 1.0],       // Low ball, left, starts at 0s
+		[100, 250, 0, 10, 0.8],        // Mid ball, center, starts at 10s
+		[150, 350, 0.6, 20, 0.6],      // High ball, right, starts at 20s
 	];
 
 	// Generate grid times for DOWN phase
@@ -51,26 +51,23 @@ Routine({
 	0.5.wait;
 
 	"BOUNCING BALL - Quantized Grid".postln;
-	"All balls snap to common accelerating grid".postln;
+	"Balls at 0s, 10s, 20s offsets - staggered canon".postln;
 
 	balls.do { |ballConfig|
 		var freq = ballConfig[0];
 		var combFreq = ballConfig[1];
 		var pan = ballConfig[2];
-		var startIndex = ballConfig[3];
+		var timeOffset = ballConfig[3];
 		var ampScale = ballConfig[4];
 		var maxDecay = 2.0;
 		var minDecay = 0.012;
 		var maxCombDecay = 2.5;
 		var minCombDecay = 0.015;
 
-		// Play on every grid beat from startIndex
-		(startIndex, startIndex + 1 .. gridTimes.size - 1).do { |i|
-			var gridT = gridTimes[i];
-			var ballT = gridT - gridTimes[startIndex];  // Time since this ball started
-			var ballDur = gridTimes.size - startIndex;
-			var ballHalf = ballDur / 2;
-			var localProgress = (i - startIndex) / ballDur;
+		// Play the full grid pattern, offset by timeOffset
+		gridTimes.do { |gridT, i|
+			var actualT = gridT + timeOffset;
+			var localProgress = i / gridTimes.size;
 			var decay, combDecay;
 
 			if(localProgress < 0.5, {
@@ -83,7 +80,7 @@ Routine({
 				combDecay = minCombDecay + (maxCombDecay * ((localProgress - 0.5) * 2).pow(1.5));
 			});
 
-			s.sendBundle(gridT, [\s_new, \combTone, -1, 0, 0,
+			s.sendBundle(actualT, [\s_new, \combTone, -1, 0, 0,
 				\freq, freq,
 				\combFreq, combFreq,
 				\combDecay, combDecay.min(maxCombDecay),
