@@ -59,7 +59,7 @@ SynthDef(\subHit, {
 Routine({
 	var totalDur = 90;
 	var maxInterval = 2.0;
-	var minInterval = 0.06;
+	var minInterval = 0.1;  // Higher floor = more articulate at bottom
 	var maxDecay = 2.0;
 	var minDecay = 0.012;
 	var maxCombDecay = 2.5;
@@ -103,6 +103,7 @@ Routine({
 	var currentT = 0;
 	var cycleIndex = 0;
 	var subCounter = 0;
+	var hitCounter = 0;  // For accent pattern
 
 	0.5.wait;
 	Synth(\masterBus, [\in, ~masterBus.index, \out, 0]);
@@ -139,28 +140,37 @@ Routine({
 			verbMix = 0.05 + (0.35 * (1 - height));
 			verbRoom = 0.3 + (0.5 * (1 - height));
 
-			// Schedule all three balls
-			balls.do { |ballConfig, bi|
-				var freq = ballConfig[0];
-				var combFreq = ballConfig[1];
-				var pan = ballConfig[2];
-				var ampScale = ballConfig[3];
-				var timeOffset = bi * 0.02;  // Tiny offset for stereo spread
+			// Accent pattern: every 4th hit at bottom gets louder/brighter
+			// Only applies when height < 0.3 (near bottom)
+			{
+				var isAccent = (height < 0.3) && ((hitCounter % 4) == 0);
+				var accentAmp = if(isAccent, { 1.4 }, { 1.0 });
+				var accentCutoff = if(isAccent, { cutoff * 1.3 }, { cutoff });
 
-				s.sendBundle(currentT + t + timeOffset, [\s_new, \combToneFull, -1, 0, 0,
-					\out, ~masterBus.index,
-					\freq, freq,
-					\combFreq, combFreq,
-					\combDecay, combDecay.min(maxCombDecay),
-					\decay, decay.min(maxDecay),
-					\pan, pan,
-					\cutoff, cutoff,
-					\rq, rq,
-					\verbMix, verbMix,
-					\verbRoom, verbRoom,
-					\amp, 0.18 * ampScale
-				]);
-			};
+				// Schedule all three balls
+				balls.do { |ballConfig, bi|
+					var freq = ballConfig[0];
+					var combFreq = ballConfig[1];
+					var pan = ballConfig[2];
+					var ampScale = ballConfig[3];
+					var timeOffset = bi * 0.02;  // Tiny offset for stereo spread
+
+					s.sendBundle(currentT + t + timeOffset, [\s_new, \combToneFull, -1, 0, 0,
+						\out, ~masterBus.index,
+						\freq, freq,
+						\combFreq, combFreq,
+						\combDecay, combDecay.min(maxCombDecay),
+						\decay, decay.min(maxDecay),
+						\pan, pan,
+						\cutoff, accentCutoff.min(12000),
+						\rq, rq,
+						\verbMix, verbMix,
+						\verbRoom, verbRoom,
+						\amp, 0.18 * ampScale * accentAmp
+					]);
+				};
+			}.value;
+			hitCounter = hitCounter + 1;
 
 			// Sub on every 6th hit
 			if((subCounter % 6) == 0, {
