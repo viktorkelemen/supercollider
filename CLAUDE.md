@@ -455,6 +455,22 @@ When writing SynthDefs or SC code, ALWAYS verify:
 
 Use WebSearch with "site:doc.sccode.org [UGen name]" to confirm syntax.
 
+## Syntax Checking
+
+**IMPORTANT: After every .scd file write or edit, validate the syntax.**
+
+Use sclang to validate (tree-sitter doesn't understand all SC syntax):
+```supercollider
+// Load file to check for errors
+"/path/to/file.scd".load;
+```
+
+Common SC syntax rules:
+- All `var` declarations MUST be at the TOP of a function/routine block
+- Cannot declare `var` inside `if`, `while`, or after other statements
+- Use `Routine({...}).play` or `{...}.fork` for scheduled code
+- Use `{condition}.while({body})` syntax for while loops
+
 ---
 
 ## Troubleshooting
