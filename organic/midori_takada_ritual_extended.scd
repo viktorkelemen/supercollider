@@ -48,10 +48,8 @@ SynthDef(\woodBlock, {
 	sig = sig * env * amp;
 	Out.ar(out, Pan2.ar(sig, pan));
 }).add;
-)
 
 // Play the 2-minute ritual
-(
 ~phraseLen = 1.2;
 ~pattern = [220, 220, 262, 220, 294, 262, 330, 294];
 ~accents = [1, 0, 0, 1, 0, 0, 1, 0];
@@ -80,13 +78,14 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 8]);
 
 	// Marimba pattern
 	8.do { |step|
-		var time = phraseStart + (step * ~stepDur);
-		var freq = ~pattern[step];
-		var isAccent = ~accents[step] == 1;
-		var timbre = ~getTimbre.value(phraseNum, step);
-		var amp = if(isAccent, 0.2, 0.12);
-		var decay = if(isAccent, 1.0, 0.5);
-		var pan = [-0.1, 0.1].wrapAt(step);
+		var time, freq, isAccent, timbre, amp, decay, pan;
+		time = phraseStart + (step * ~stepDur);
+		freq = ~pattern[step];
+		isAccent = ~accents[step] == 1;
+		timbre = ~getTimbre.value(phraseNum, step);
+		amp = if(isAccent, 0.2, 0.12);
+		decay = if(isAccent, 1.0, 0.5);
+		pan = [-0.1, 0.1].wrapAt(step);
 
 		s.sendBundle(time, [\s_new, \marimbaVar, -1, 0, 0,
 			\freq, freq,
