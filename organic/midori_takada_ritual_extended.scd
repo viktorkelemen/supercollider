@@ -5,7 +5,8 @@
 // Voice Roles:
 //   Foundation: Gong (low, slow)
 //   Pulse: Marimba pattern (repetitive, steady)
-//   Movement: High marimba fills (syncopation)
+//   Movement: High marimba fills (1 octave up, syncopation)
+//   Sparkle: Very high fills (2 octaves up, peak only)
 //   Color: Wood blocks (texture)
 //
 // Energy Arc:
@@ -209,17 +210,38 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 10]);
 		};
 	};
 
-	// Movement layer - high marimba fills during development/peak only
+	// Movement layer - high marimba fills during development/peak
 	if ((phraseStart >= 35) and: (phraseStart < ~peakEnd)) {
-		if ((phraseNum % 3 == 1) and: (density > 0.6) and: density.coin) {
-			// Add a high response note
+		// High fills (1 octave up) - every phrase during peak
+		if (density.coin) {
 			highFreq = ~pattern.choose * 2;
 			s.sendBundle(phraseStart + (5 * ~stepDur), [\s_new, \marimbaVar, -1, 0, 0,
-				\freq, highFreq,
-				\amp, 0.08,
-				\decay, 0.4,
-				\pan, 0.4,
-				\timbre, timbre * 0.8
+				\freq, highFreq, \amp, 0.08 * density,
+				\decay, 0.4, \pan, 0.4, \timbre, timbre * 0.85
+			]);
+		};
+		// Additional fill on even phrases
+		if ((phraseNum % 2 == 0) and: density.coin) {
+			highFreq = ~pattern.choose * 2;
+			s.sendBundle(phraseStart + (2 * ~stepDur), [\s_new, \marimbaVar, -1, 0, 0,
+				\freq, highFreq, \amp, 0.07 * density,
+				\decay, 0.35, \pan, -0.3, \timbre, timbre * 0.9
+			]);
+		};
+	};
+
+	// Sparkle layer (2 octaves up) - only during peak
+	if ((phraseStart >= ~developEnd) and: (phraseStart < ~peakEnd)) {
+		if ((phraseNum % 2 == 1) and: density.coin) {
+			s.sendBundle(phraseStart + (4 * ~stepDur), [\s_new, \marimbaVar, -1, 0, 0,
+				\freq, ~pattern.choose * 4, \amp, 0.04,
+				\decay, 0.25, \pan, 0.6, \timbre, 0.95
+			]);
+		};
+		if ((phraseNum % 3 == 0) and: density.coin) {
+			s.sendBundle(phraseStart + (7 * ~stepDur), [\s_new, \marimbaVar, -1, 0, 0,
+				\freq, ~pattern.choose * 4, \amp, 0.035,
+				\decay, 0.2, \pan, -0.5, \timbre, 1.0
 			]);
 		};
 	};
