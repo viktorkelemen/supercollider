@@ -1,44 +1,31 @@
 // ============================================================
-// BOUNCING BALL - Full Production (LPF + Reverb + Sub)
+// BOUNCING BALL - Chord Version (E minor)
 // ============================================================
-// Multi-ball grid with:
-// - Intro: muffled + large reverb for first 10s, then opens up
-// - Dynamic LPF (bright at top, dark at bottom)
-// - Reverb that increases at bottom
-// - Sparse sub bass hits for foundation
-// - Master bus: HPF + Compressor + Soft Limiter
+// Same as full production but with harmonically tuned frequencies
+// E minor chord: E2-G2-B2 with sub on E1
+// Counter-rhythm uses notes from E minor scale
 
 (
 // Master bus - allocate 2 channels
 ~masterBus = Bus.audio(s, 2);
 
-// Master chain: HPF → Compressor → Limiter
+// Master chain: HPF -> Compressor -> Limiter
 SynthDef(\masterBus, {
 	arg in, out = 0, hpFreq = 30, compThresh = 0.5, compRatio = 3,
 	    compAttack = 0.03, compRelease = 0.15, limitLevel = 0.95, gain = 1.2;
 	var sig, compressed;
 
 	sig = In.ar(in, 2);
-
-	// HPF to clean up sub-lows
 	sig = HPF.ar(sig, hpFreq);
-
-	// Compressor (Compander)
-	// threshold, slopeBelow, slopeAbove, clampTime, relaxTime
 	compressed = Compander.ar(sig, sig,
 		thresh: compThresh,
 		slopeBelow: 1,
-		slopeAbove: compRatio.reciprocal,  // 3:1 ratio = 0.33 slope
+		slopeAbove: compRatio.reciprocal,
 		clampTime: compAttack,
 		relaxTime: compRelease
 	);
-
-	// Makeup gain
 	compressed = compressed * gain;
-
-	// Soft limiter (tanh saturation)
 	compressed = (compressed * limitLevel).tanh;
-
 	Out.ar(out, compressed);
 }).add;
 
@@ -48,19 +35,16 @@ SynthDef(\combToneFull, {
 	    combDecay = 0.1, decay = 0.15, pan = 0,
 	    cutoff = 4000, rq = 0.5, verbMix = 0.1, verbRoom = 0.5;
 	var sig, env, dry, wet;
-	env = EnvGen.kr(Env.perc(0.002, decay, 1, -4), doneAction: 2);
+	env = EnvGen.kr(Env.perc(0.001, decay, 1, -4), doneAction: 2);
 
-	sig = PinkNoise.ar * EnvGen.kr(Env.perc(0.001, 0.012));
+	sig = WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.01));
 	sig = CombL.ar(sig, 0.05, combFreq.reciprocal, combDecay);
-	sig = sig + (SinOsc.ar(freq) * 0.3);
+	sig = sig + (SinOsc.ar(freq) * 0.25);
 
-	// Dynamic LPF with resonance + gentle rolloff
 	sig = RLPF.ar(sig, cutoff, rq);
-	sig = LPF.ar(sig, 12000);  // Gentle high rolloff
 
 	sig = sig * env * amp;
 
-	// Reverb blend
 	dry = sig;
 	wet = FreeVerb.ar(sig, 1, verbRoom, 0.3);
 	sig = ((1 - verbMix) * dry) + (verbMix * wet);
@@ -68,14 +52,14 @@ SynthDef(\combToneFull, {
 	Out.ar(out, Pan2.ar(sig, pan));
 }).add;
 
-// Counter-rhythm - FM click (from Mark Fell synths)
+// Counter-rhythm - FM click
 SynthDef(\fmClick, {
 	arg out = 0, amp = 0.2, freq = 800, ratio = 3.5, index = 3, decay = 0.08, pan = 0, lpf = 4000;
 	var sig, env, mod;
-	env = EnvGen.kr(Env.perc(0.002, decay, 1, -5), doneAction: 2);  // Slightly softer attack
+	env = EnvGen.kr(Env.perc(0.002, decay, 1, -5), doneAction: 2);
 	mod = SinOsc.ar(freq * ratio) * freq * index * env;
 	sig = SinOsc.ar(freq + mod);
-	sig = LPF.ar(sig, lpf);  // Soften the highs
+	sig = LPF.ar(sig, lpf);
 	sig = sig * env * amp;
 	Out.ar(out, Pan2.ar(sig, pan));
 }).add;
@@ -85,13 +69,10 @@ SynthDef(\subHit, {
 	arg out = 0, amp = 0.3, freq = 40, decay = 0.4;
 	var sig, env;
 	env = EnvGen.kr(Env.perc(0.01, decay, 1, -4), doneAction: 2);
-
-	// Clean sub with slight saturation
 	sig = SinOsc.ar(freq);
-	sig = sig + (SinOsc.ar(freq * 2) * 0.1);  // Slight 2nd harmonic
-	sig = (sig * 1.5).tanh;  // Soft saturation
-
-	sig = LPF.ar(sig, 120);  // Keep it subby
+	sig = sig + (SinOsc.ar(freq * 2) * 0.1);
+	sig = (sig * 1.5).tanh;
+	sig = LPF.ar(sig, 120);
 	sig = sig * env * amp;
 	Out.ar(out, [sig, sig]);
 }).add;
@@ -105,11 +86,25 @@ Routine({
 	var minInterval = 0.06;
 	var interval, progress;
 
+	// E minor chord frequencies (MIDI to Hz)
+	// E2=40, G2=43, B2=47
+	var rootFreq = 40.midicps;   // E2 = 82.4 Hz
+	var thirdFreq = 43.midicps;  // G2 = 98 Hz
+	var fifthFreq = 47.midicps;  // B2 = 123.5 Hz
+
+	// Sub bass on E1 (octave below root)
+	var subFreq = 28.midicps;    // E1 = 41.2 Hz
+
+	// Counter-rhythm notes from E minor scale (higher register)
+	// E4=64, G4=67, A4=69, B4=71, D5=74
+	var counterNotes = [64, 67, 69, 71, 74].collect(_.midicps);
+
 	// Ball configs: [freq, combFreq, pan, timeOffset, ampScale]
+	// combFreq is one octave up from fundamental
 	var balls = [
-		[60, 150, -0.6, 0, 1.0],
-		[100, 250, 0, 10, 0.8],
-		[150, 350, 0.6, 20, 0.6],
+		[rootFreq, rootFreq * 2, -0.6, 0, 1.0],     // E2, comb at E3
+		[thirdFreq, thirdFreq * 2, 0, 10, 0.8],    // G2, comb at G3
+		[fifthFreq, fifthFreq * 2, 0.6, 20, 0.6],  // B2, comb at B3
 	];
 
 	// Generate grid
@@ -128,11 +123,10 @@ Routine({
 
 	0.5.wait;
 
-	// Start master bus synth (runs for duration + tail)
 	Synth(\masterBus, [\in, ~masterBus.index, \out, 0]);
 
-	"BOUNCING BALL - Full Production".postln;
-	"LPF + Reverb + Sub + Master compression".postln;
+	"BOUNCING BALL - E Minor Chord".postln;
+	"Root: E2 (82Hz), Third: G2 (98Hz), Fifth: B2 (124Hz)".postln;
 
 	// Schedule balls with LPF and reverb
 	balls.do { |ballConfig|
@@ -153,29 +147,21 @@ Routine({
 			var height, cutoff, rq, verbMix, verbRoom;
 			var introFade, introDur = 10;
 
-			// Intro fade: 1 at start, 0 after introDur seconds
 			introFade = (1 - (actualT / introDur)).max(0);
 
-			// Height: 1 at top, 0 at bottom, 1 at top again
 			height = if(localProgress < 0.5,
 				{ 1 - (localProgress * 2) },
 				{ (localProgress - 0.5) * 2 }
 			);
 
-			// Decay based on height
 			decay = (maxDecay * height.pow(1.5)) + minDecay;
 			combDecay = (maxCombDecay * height.pow(1.5)) + minCombDecay;
 
-			// LPF: bright at top (8000Hz), dark at bottom (800Hz)
-			// Intro: start very dark (400Hz), open up over 10s
 			cutoff = 800 + (7200 * height);
 			cutoff = (400 * introFade) + (cutoff * (1 - introFade));
 
-			// Resonance increases at bottom
-			rq = 0.7 - (0.4 * height);  // 0.3 at bottom, 0.7 at top
+			rq = 0.7 - (0.4 * height);
 
-			// Reverb: more at bottom
-			// Intro: start very wet (0.7), large room (0.9)
 			verbMix = 0.05 + (0.35 * (1 - height));
 			verbMix = (0.7 * introFade) + (verbMix * (1 - introFade));
 			verbRoom = 0.3 + (0.5 * (1 - height));
@@ -197,7 +183,7 @@ Routine({
 		};
 	};
 
-	// Schedule sparse sub bass hits (every 8th grid beat, only for first ball)
+	// Schedule sparse sub bass hits on E1
 	gridTimes.do { |gridT, i|
 		var height, subAmp, subDecay;
 
@@ -207,50 +193,48 @@ Routine({
 				{ ((i / gridTimes.size) - 0.5) * 2 }
 			);
 
-			// Sub louder and longer at bottom
-			subAmp = 0.2 + (0.15 * (1 - height));
+			subAmp = 0.1 + (0.08 * (1 - height));  // Quieter sub
 			subDecay = 0.3 + (0.4 * (1 - height));
 
 			s.sendBundle(gridT, [\s_new, \subHit, -1, 0, 0,
 				\out, ~masterBus.index,
-				\freq, 40,
+				\freq, subFreq,
 				\amp, subAmp,
 				\decay, subDecay
 			]);
 		});
 	};
 
-	// Schedule counter-rhythm (inverse density - sparse at bottom, frequent at top)
-	// Uses fixed intervals that speed up when balls slow down
+	// Counter-rhythm using E minor scale notes
 	{
 		var counterT = 0;
 		var counterMaxInterval = 0.8;
 		var counterMinInterval = 0.08;
 		var counterInterval, counterHeight, counterProgress;
+		var noteIndex = 0;
 
 		{counterT < totalDur}.while({
 			counterProgress = counterT / totalDur;
-			// Inverse of ball height: dense (short interval) at top, sparse at bottom
 			counterHeight = if(counterProgress < 0.5,
-				{ counterProgress * 2 },      // 0→1 as balls fall (we speed up)
-				{ 1 - ((counterProgress - 0.5) * 2) }  // 1→0 as balls rise (we slow down)
+				{ counterProgress * 2 },
+				{ 1 - ((counterProgress - 0.5) * 2) }
 			);
 
-			// Interval: short at top (fast clicks), long at bottom (sparse)
 			counterInterval = counterMinInterval + (counterMaxInterval * (1 - counterHeight).pow(1.5));
 
-			// Play click with varying freq based on position
+			// Cycle through E minor scale notes
 			s.sendBundle(counterT, [\s_new, \fmClick, -1, 0, 0,
 				\out, ~masterBus.index,
-				\freq, 500 + (300 * counterHeight),  // Slightly lower range
-				\ratio, 2.5 + (counterHeight * 1.5), // Less aggressive FM
-				\index, 1.5 + (counterHeight * 2.5), // Reduced brightness
+				\freq, counterNotes.wrapAt(noteIndex),
+				\ratio, 2.5 + (counterHeight * 1.5),
+				\index, 1.5 + (counterHeight * 2.5),
 				\decay, 0.04 + (0.08 * counterHeight),
-				\lpf, 2500 + (2500 * counterHeight), // Opens up at top
-				\pan, (counterHeight - 0.5) * 0.6,   // Less extreme stereo
-				\amp, 0.05 + (0.03 * counterHeight)  // Slightly quieter
+				\lpf, 2000 + (2000 * counterHeight),  // Darker
+				\pan, (counterHeight - 0.5) * 0.6,
+				\amp, 0.025 + (0.015 * counterHeight)  // Quieter
 			]);
 
+			noteIndex = noteIndex + 1;
 			counterT = counterT + counterInterval;
 		});
 	}.value;
