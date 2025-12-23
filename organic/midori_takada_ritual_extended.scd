@@ -194,13 +194,13 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 10]);
 
 	// Wood blocks (Color) - only during development and peak
 	if ((phraseStart >= ~introEnd) and: (phraseStart < ~breakdownEnd)) {
-		if ((phraseNum % 2 == 0) and: (density > 0.6).coin) {
+		if ((phraseNum % 2 == 0) and: (density > 0.6) and: density.coin) {
 			s.sendBundle(phraseStart, [\s_new, \woodBlock, -1, 0, 0,
 				\freq, 700 + (timbre * 400),
 				\amp, 0.05 * density
 			]);
 		};
-		if ((phraseNum % 3 == 0) and: (density > 0.7).coin) {
+		if ((phraseNum % 3 == 0) and: (density > 0.7) and: density.coin) {
 			s.sendBundle(phraseStart + (3 * ~stepDur), [\s_new, \woodBlock, -1, 0, 0,
 				\freq, 750 + (timbre * 400),
 				\amp, 0.04 * density,
@@ -211,7 +211,7 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 10]);
 
 	// Movement layer - high marimba fills during development/peak only
 	if ((phraseStart >= 45) and: (phraseStart < ~peakEnd)) {
-		if ((phraseNum % 4 == 2) and: (density > 0.7).coin) {
+		if ((phraseNum % 4 == 2) and: (density > 0.7) and: density.coin) {
 			// Add a high response note
 			highFreq = ~pattern.choose * 2;
 			s.sendBundle(phraseStart + (5 * ~stepDur), [\s_new, \marimbaVar, -1, 0, 0,
