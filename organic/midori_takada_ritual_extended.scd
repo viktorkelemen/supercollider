@@ -52,17 +52,17 @@ SynthDef(\woodBlock, {
 
 // Play the 2-minute ritual
 (
-var t = 0;
-var phraseLen = 1.2;
-var pattern = [220, 220, 262, 220, 294, 262, 330, 294];
-var accents = [1, 0, 0, 1, 0, 0, 1, 0];
-var stepDur = 0.15;
+~phraseLen = 1.2;
+~pattern = [220, 220, 262, 220, 294, 262, 330, 294];
+~accents = [1, 0, 0, 1, 0, 0, 1, 0];
+~stepDur = 0.15;
 
 // Timbre wave function - oscillates between 0.15 and 1.0
-var getTimbre = { |phraseNum, stepNum|
-	var wave = (phraseNum / 4 * pi).sin.abs;
-	var base = 0.15 + (wave * 0.85);
-	var micro = stepNum * 0.02;
+~getTimbre = { |phraseNum, stepNum|
+	var wave, base, micro;
+	wave = (phraseNum / 4 * pi).sin.abs;
+	base = 0.15 + (wave * 0.85);
+	micro = stepNum * 0.02;
 	(base + micro).clip(0.15, 1.0);
 };
 
@@ -71,21 +71,21 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 8]);
 
 // 100 phrases = ~2 minutes
 100.do { |phraseNum|
-	var phraseStart = phraseNum * phraseLen;
+	var phraseStart = phraseNum * ~phraseLen;
 
 	// Every 12 phrases, add a gong
-	if (phraseNum % 12 == 0 && phraseNum > 0) {
+	if ((phraseNum % 12 == 0) and: (phraseNum > 0)) {
 		s.sendBundle(phraseStart, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.15, \decay, 6]);
 	};
 
 	// Marimba pattern
 	8.do { |step|
-		var time = phraseStart + (step * stepDur);
-		var freq = pattern[step];
-		var isAccent = accents[step] == 1;
-		var timbre = getTimbre.value(phraseNum, step);
-		var amp = if(isAccent, { 0.2 }, { 0.12 });
-		var decay = if(isAccent, { 1.0 }, { 0.5 });
+		var time = phraseStart + (step * ~stepDur);
+		var freq = ~pattern[step];
+		var isAccent = ~accents[step] == 1;
+		var timbre = ~getTimbre.value(phraseNum, step);
+		var amp = if(isAccent, 0.2, 0.12);
+		var decay = if(isAccent, 1.0, 0.5);
 		var pan = [-0.1, 0.1].wrapAt(step);
 
 		s.sendBundle(time, [\s_new, \marimbaVar, -1, 0, 0,
@@ -100,11 +100,11 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 8]);
 	// Wood blocks on accented beats
 	if (phraseNum % 2 == 0) {
 		s.sendBundle(phraseStart, [\s_new, \woodBlock, -1, 0, 0,
-			\freq, 700 + (getTimbre.value(phraseNum, 0) * 400),
+			\freq, 700 + (~getTimbre.value(phraseNum, 0) * 400),
 			\amp, 0.06
 		]);
-		s.sendBundle(phraseStart + (3 * stepDur), [\s_new, \woodBlock, -1, 0, 0,
-			\freq, 750 + (getTimbre.value(phraseNum, 3) * 400),
+		s.sendBundle(phraseStart + (3 * ~stepDur), [\s_new, \woodBlock, -1, 0, 0,
+			\freq, 750 + (~getTimbre.value(phraseNum, 3) * 400),
 			\amp, 0.06
 		]);
 	};
