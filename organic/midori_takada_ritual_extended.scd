@@ -9,9 +9,9 @@
 //   Color: Wood blocks (texture)
 //
 // Energy Arc:
-//   0:00-0:30  Intro - sparse marimba, dark timbre
-//   0:30-1:30  Development - add layers, timbre rising
-//   1:30-2:00  Peak - maximum density, brightest
+//   0:00-0:20  Intro - sparse marimba, dark timbre
+//   0:20-0:50  Development - add layers, timbre rising
+//   0:50-2:00  Peak - maximum density, brightest (extended)
 //   2:00-2:30  Breakdown - strip back, timbre falling
 //   2:30-3:00  Resolution - sparse, dark, resolve
 
@@ -71,9 +71,9 @@ SynthDef(\woodBlock, {
 ~accents = [1, 0, 0, 1, 0, 0, 1, 0];
 
 // Energy arc timings (in seconds)
-~introEnd = 30;
-~developEnd = 90;
-~peakEnd = 120;
+~introEnd = 20;
+~developEnd = 50;
+~peakEnd = 120;  // Extended peak: 50-120 (70 seconds!)
 ~breakdownEnd = 150;
 // Resolution: 150-180
 
@@ -83,23 +83,23 @@ SynthDef(\woodBlock, {
 	var progress;
 	case
 		{ time < ~introEnd } {
-			// Intro: dark, slowly warming (0.1 -> 0.25)
-			0.1 + ((time / ~introEnd) * 0.15)
+			// Intro: dark, slowly warming (0.1 -> 0.2)
+			0.1 + ((time / ~introEnd) * 0.1)
 		}
 		{ time < ~developEnd } {
-			// Development: rising (0.25 -> 0.8)
+			// Development: rising quickly (0.2 -> 0.85)
 			progress = (time - ~introEnd) / (~developEnd - ~introEnd);
-			0.25 + (progress * 0.55)
+			0.2 + (progress * 0.65)
 		}
 		{ time < ~peakEnd } {
-			// Peak: bright with subtle movement (0.8 -> 1.0 -> 0.85)
+			// Peak: very bright with waves (0.85 -> 1.0), sustained high
 			progress = (time - ~developEnd) / (~peakEnd - ~developEnd);
-			0.8 + ((progress * pi).sin * 0.2)
+			0.85 + ((progress * 2 * pi).sin * 0.15)
 		}
 		{ time < ~breakdownEnd } {
-			// Breakdown: falling (0.85 -> 0.3)
+			// Breakdown: falling (1.0 -> 0.3)
 			progress = (time - ~peakEnd) / (~breakdownEnd - ~peakEnd);
-			0.85 - (progress * 0.55)
+			0.9 - (progress * 0.6)
 		}
 		{
 			// Resolution: dark, fading (0.3 -> 0.1)
@@ -113,17 +113,17 @@ SynthDef(\woodBlock, {
 ~getDensity = { |time|
 	var progress;
 	case
-		{ time < ~introEnd } { 0.5 }           // Sparse intro
-		{ time < ~developEnd } {               // Building
+		{ time < ~introEnd } { 0.4 }           // Sparse intro
+		{ time < ~developEnd } {               // Building quickly
 			progress = (time - ~introEnd) / (~developEnd - ~introEnd);
-			0.5 + (progress * 0.4)
+			0.4 + (progress * 0.55)
 		}
-		{ time < ~peakEnd } { 0.95 }           // Full density at peak
+		{ time < ~peakEnd } { 1.0 }            // Maximum density at peak
 		{ time < ~breakdownEnd } {             // Stripping back
 			progress = (time - ~peakEnd) / (~breakdownEnd - ~peakEnd);
-			0.9 - (progress * 0.5)
+			0.95 - (progress * 0.55)
 		}
-		{ 0.4 }                                // Sparse resolution
+		{ 0.35 }                               // Sparse resolution
 };
 
 // ---- Schedule the piece ----
@@ -210,8 +210,8 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 10]);
 	};
 
 	// Movement layer - high marimba fills during development/peak only
-	if ((phraseStart >= 45) and: (phraseStart < ~peakEnd)) {
-		if ((phraseNum % 4 == 2) and: (density > 0.7) and: density.coin) {
+	if ((phraseStart >= 35) and: (phraseStart < ~peakEnd)) {
+		if ((phraseNum % 3 == 1) and: (density > 0.6) and: density.coin) {
 			// Add a high response note
 			highFreq = ~pattern.choose * 2;
 			s.sendBundle(phraseStart + (5 * ~stepDur), [\s_new, \marimbaVar, -1, 0, 0,
@@ -229,9 +229,9 @@ s.sendBundle(0, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 10]);
 s.sendBundle(~totalDuration - 5, [\s_new, \gong, -1, 0, 0, \freq, 55, \amp, 0.2, \decay, 15]);
 
 "RITUAL EXTENDED - 3 minute energy arc".postln;
-"  0:00-0:30  Intro (dark, sparse)".postln;
-"  0:30-1:30  Development (building, brightening)".postln;
-"  1:30-2:00  Peak (full density, brightest)".postln;
+"  0:00-0:20  Intro (dark, sparse)".postln;
+"  0:20-0:50  Development (building, brightening)".postln;
+"  0:50-2:00  Peak (maximum density, brightest) <<<".postln;
 "  2:00-2:30  Breakdown (stripping back)".postln;
 "  2:30-3:00  Resolution (sparse, dark)".postln;
 )
