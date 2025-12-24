@@ -11,7 +11,6 @@
 // --------------------------------------------------
 // PURE SINE - Clean sine tone
 // --------------------------------------------------
-(
 SynthDef(\pureSine, {
 	arg out = 0, amp = 0.2, freq = 440, dur = 1, pan = 0;
 	var sig, env;
@@ -23,12 +22,10 @@ SynthDef(\pureSine, {
 	sig = sig * env * amp;
 	Out.ar(out, Pan2.ar(sig, pan));
 }).add;
-)
 
 // --------------------------------------------------
 // DIGITAL CLICK - Precise, clean click
 // --------------------------------------------------
-(
 SynthDef(\digitalClick, {
 	arg out = 0, amp = 0.15, freq = 4000, dur = 0.002, pan = 0;
 	var sig, env;
@@ -44,12 +41,10 @@ SynthDef(\digitalClick, {
 	sig = sig * env * amp;
 	Out.ar(out, Pan2.ar(sig, pan));
 }).add;
-)
 
 // --------------------------------------------------
 // GRID PULSE - Precise rhythmic pulse
 // --------------------------------------------------
-(
 SynthDef(\gridPulse, {
 	arg out = 0, amp = 0.1, freq = 200, rate = 8, dur = 2;
 	var sig, env, trig;
@@ -62,15 +57,13 @@ SynthDef(\gridPulse, {
 	sig = sig * env * amp;
 	Out.ar(out, sig ! 2);
 }).add;
-)
 
 // --------------------------------------------------
 // SINE CLUSTER - Multiple pure tones
 // --------------------------------------------------
-(
 SynthDef(\sineCluster, {
-	arg out = 0, amp = 0.1, freq = 440, spread = 10, numTones = 5;
-	var sig;
+	arg out = 0, amp = 0.1, freq = 440, spread = 10;
+	var sig, numTones = 5;
 
 	sig = Mix.fill(numTones, { |i|
 		var offset = (i - (numTones / 2)) * spread;
@@ -80,12 +73,10 @@ SynthDef(\sineCluster, {
 	sig = sig * amp;
 	Out.ar(out, sig ! 2);
 }).add;
-)
 
 // --------------------------------------------------
 // MICRO TEXTURE - Dense, quiet micro-sounds
 // --------------------------------------------------
-(
 SynthDef(\microTexture, {
 	arg out = 0, amp = 0.05, density = 50;
 	var sig, clicks;
@@ -102,8 +93,28 @@ SynthDef(\microTexture, {
 	sig = sig * amp;
 	Out.ar(out, sig ! 2);
 }).add;
-)
 
+// --------------------------------------------------
+// STATIC BURST - Digital noise burst
+// --------------------------------------------------
+SynthDef(\staticBurst, {
+	arg out = 0, amp = 0.1, dur = 0.1;
+	var sig, env;
+	env = EnvGen.kr(Env.perc(0.001, dur, 1, -4), doneAction: 2);
+	sig = LFNoise0.ar(20000) * 0.5;
+	sig = sig + (Dust.ar(1000) * 0.5);
+	sig = HPF.ar(sig, 2000);
+	sig = sig * env * amp;
+	Out.ar(out, sig ! 2);
+}).add;
+
+"Alva Noto SynthDefs loaded".postln;
+
+// ============================================================
+// EXPERIMENTS - Select and evaluate each block individually
+// ============================================================
+
+/*
 // --------------------------------------------------
 // EXPERIMENT 1: XERROX MINIMAL
 // Clean, grid-based minimalism
@@ -214,7 +225,7 @@ SynthDef(\microTexture, {
 // --------------------------------------------------
 (
 // Sine cluster drone
-~cluster = Synth(\sineCluster, [\freq, 220, \amp, 0.06, \spread, 5, \numTones, 7]);
+~cluster = Synth(\sineCluster, [\freq, 220, \amp, 0.06, \spread, 5]);
 
 // Sparse clicks
 ~clickRoutine = Routine({
@@ -265,17 +276,6 @@ SynthDef(\microTexture, {
 // Rhythmic noise exploration
 // --------------------------------------------------
 (
-SynthDef(\staticBurst, {
-	arg out = 0, amp = 0.1, dur = 0.1;
-	var sig, env;
-	env = EnvGen.kr(Env.perc(0.001, dur, 1, -4), doneAction: 2);
-	sig = LFNoise0.ar(20000) * 0.5;
-	sig = sig + (Dust.ar(1000) * 0.5);
-	sig = HPF.ar(sig, 2000);
-	sig = sig * env * amp;
-	Out.ar(out, sig ! 2);
-}).add;
-
 ~micro = Synth(\microTexture, [\amp, 0.04, \density, 60]);
 
 // Static bursts
@@ -397,3 +397,4 @@ SynthDef(\staticBurst, {
 // STOP ALL
 // --------------------------------------------------
 // s.freeAll;
+*/
