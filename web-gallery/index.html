@@ -123,58 +123,46 @@
             50% { opacity: 0.4; }
         }
 
-        /* Style sections */
-        .style-section {
-            margin-bottom: var(--space-lg);
-        }
-
-        .style-section h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--sc-title);
-            margin: 0 0 var(--space-xs) 0;
-            display: inline-block;
-        }
-
-        .style-section .style-desc {
-            color: var(--sc-text-muted);
-            margin: 0 0 var(--space-sm) 0;
-            font-size: 0.8125rem;
-        }
-
-        /* Experiment grid */
-        .experiments-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-xs);
-        }
-
-        /* Experiment cards - compact inline style */
-        .experiment-card {
-            background: transparent;
-            border: 1px solid var(--sc-border);
-            border-radius: 6px;
-            padding: var(--space-xs) var(--space-sm);
-            transition: border-color 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-        }
-
-        .experiment-card:hover {
-            border-color: var(--sc-light-blue);
-        }
-
-        .experiment-card h3 {
-            margin: 0;
-            color: var(--sc-text);
+        /* Table layout */
+        .synth-table {
+            width: 100%;
+            max-width: 900px;
+            border-collapse: collapse;
             font-size: 0.875rem;
-            font-weight: 500;
-            white-space: nowrap;
         }
 
-        .experiment-card p {
-            display: none;
+        .synth-table th {
+            text-align: left;
+            padding: var(--space-xs) var(--space-sm);
+            border-bottom: 2px solid var(--sc-border);
+            color: var(--sc-text-muted);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .synth-table td {
+            padding: var(--space-xs) var(--space-sm);
+            border-bottom: 1px solid var(--sc-border);
+            vertical-align: middle;
+        }
+
+        .synth-table tr:hover {
+            background: var(--sc-bg-subtle);
+        }
+
+        .synth-table .style-cell {
+            color: var(--sc-title);
+            font-weight: 500;
+        }
+
+        .synth-table .name-cell {
+            font-weight: 500;
+        }
+
+        .synth-table .desc-cell {
+            color: var(--sc-text-muted);
         }
 
         /* Controls */
@@ -304,311 +292,44 @@
             Initializing SuperSonic...
         </div>
 
-        <!-- Verbunkos Style -->
-        <section class="style-section">
-            <h2>Verbunkos</h2>
-            <p class="style-desc">18th-century recruiting dance music featuring virtuosic cimbalom and expressive violin ornaments</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="cimbalomArpeggio">
-                    <h3>Cimbalom Arpeggio</h3>
-                    <p>Flowing broken chord on the Hungarian hammered dulcimer</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="cimbalomTremolo">
-                    <h3>Cimbalom Tremolo</h3>
-                    <p>Rapid repeated strikes creating shimmering sustained tones</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="verbViolin">
-                    <h3>Verbunkos Violin</h3>
-                    <p>Expressive melody with characteristic wide vibrato</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="verbViolinSlide">
-                    <h3>Violin Portamento</h3>
-                    <p>Sliding ornaments between notes in the Romani style</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="bracsa">
-                    <h3>Brácsá (Viola)</h3>
-                    <p>Rhythmic chordal accompaniment with offbeat accents</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Shepherd Style -->
-        <section class="style-section">
-            <h2>Shepherd Music</h2>
-            <p class="style-desc">Ancient pastoral melodies played on wooden flutes in the Transylvanian highlands</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="shepFurulya">
-                    <h3>Furulya</h3>
-                    <p>Six-hole wooden recorder with breathy overtones</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="shepTilinko">
-                    <h3>Tilinkó</h3>
-                    <p>Overtone flute played without finger holes</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="shepLongFlute">
-                    <h3>Long Flute</h3>
-                    <p>Deep resonant tones of the hosszúfurulya</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~4s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Duda Style -->
-        <section class="style-section">
-            <h2>Duda (Bagpipe)</h2>
-            <p class="style-desc">Hungarian goatskin bagpipe with continuous drone and ornamental chanter</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="dudaDrone">
-                    <h3>Drone</h3>
-                    <p>Continuous bass note with rich harmonic spectrum</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~4s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="dudaChanter">
-                    <h3>Chanter Phrase</h3>
-                    <p>Short melodic figure with grace notes</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="dudaDance">
-                    <h3>Dance Tune</h3>
-                    <p>Complete bagpipe dance with drone and melody</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~5s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Csárdás Style -->
-        <section class="style-section">
-            <h2>Csárdás</h2>
-            <p class="style-desc">Traditional couple dance alternating between slow (lassú) and fast (friss) sections</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="csardViolin">
-                    <h3>Csárdás Violin</h3>
-                    <p>Fiery accelerating melody with double stops</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="csardBass">
-                    <h3>Bőgő (Bass)</h3>
-                    <p>Percussive slapped bass providing rhythmic foundation</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Hallgató Style -->
-        <section class="style-section">
-            <h2>Hallgató</h2>
-            <p class="style-desc">Free-tempo "listening music" — deeply expressive rubato melodies</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="hallgatoViolin">
-                    <h3>Hallgató Violin</h3>
-                    <p>Lamenting melody with extreme rubato and ornamentation</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~5s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Legényes Style -->
-        <section class="style-section">
-            <h2>Legényes</h2>
-            <p class="style-desc">Solo men's dance from Kalotaszeg with complex asymmetric rhythms</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="legenyViolin">
-                    <h3>Legényes Violin</h3>
-                    <p>Angular melody with surprising accents</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="legenyGardon">
-                    <h3>Gardon</h3>
-                    <p>Struck cello providing percussive rhythm</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Táncház Style -->
-        <section class="style-section">
-            <h2>Táncház</h2>
-            <p class="style-desc">Village dance house ensemble with full string band texture</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="tzViolin">
-                    <h3>Lead Violin</h3>
-                    <p>Driving dance melody with rhythmic bow strokes</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="tzBracsa">
-                    <h3>Brácsá Accompaniment</h3>
-                    <p>Rhythmic chords on the kontra viola</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="tzGardon">
-                    <h3>Gardon Beat</h3>
-                    <p>Percussive struck cello rhythm</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="tzBass">
-                    <h3>Double Bass</h3>
-                    <p>Walking bass line with slapped accents</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="tzEnsemble">
-                    <h3>Full Ensemble</h3>
-                    <p>Complete táncház band playing together</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~4s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Széki Style -->
-        <section class="style-section">
-            <h2>Széki</h2>
-            <p class="style-desc">Archaic style from the village of Szék with modal melodies and gardon accompaniment</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="szekViolin">
-                    <h3>Széki Violin</h3>
-                    <p>Modal melody in the ancient Szék style</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="szekGardon">
-                    <h3>Széki Gardon</h3>
-                    <p>Driving percussive rhythm on struck cello</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Csángó Style -->
-        <section class="style-section">
-            <h2>Csángó</h2>
-            <p class="style-desc">Ancient Hungarian community in Moldavia with archaic pentatonic melodies</p>
-            <div class="experiments-grid">
-                <div class="experiment-card" data-experiment="csangoTilinko">
-                    <h3>Csángó Tilinkó</h3>
-                    <p>Overtone flute with pentatonic melody</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~3s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="csangoVoice">
-                    <h3>Csángó Voice</h3>
-                    <p>Ancient vocal style with characteristic ornamentation</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~4s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-                <div class="experiment-card" data-experiment="csangoGardon">
-                    <h3>Csángó Gardon</h3>
-                    <p>Archaic rhythm patterns from Moldavia</p>
-                    <div class="controls">
-                        <button class="play-btn" disabled>Play</button>
-                        <span class="duration">~2s</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
-                </div>
-            </div>
-        </section>
+        <table class="synth-table">
+            <thead>
+                <tr>
+                    <th>Style</th>
+                    <th>Instrument</th>
+                    <th>Description</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-experiment="cimbalomArpeggio"><td class="style-cell">Verbunkos</td><td class="name-cell">Cimbalom Arpeggio</td><td class="desc-cell">Hammered dulcimer broken chord</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="cimbalomTremolo"><td class="style-cell">Verbunkos</td><td class="name-cell">Cimbalom Tremolo</td><td class="desc-cell">Shimmering sustained tones</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="verbViolin"><td class="style-cell">Verbunkos</td><td class="name-cell">Violin</td><td class="desc-cell">Expressive melody with wide vibrato</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="verbViolinSlide"><td class="style-cell">Verbunkos</td><td class="name-cell">Violin Portamento</td><td class="desc-cell">Sliding ornaments, Romani style</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="bracsa"><td class="style-cell">Verbunkos</td><td class="name-cell">Brácsá</td><td class="desc-cell">Rhythmic viola accompaniment</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shepFurulya"><td class="style-cell">Shepherd</td><td class="name-cell">Furulya</td><td class="desc-cell">Wooden recorder with breathy overtones</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shepTilinko"><td class="style-cell">Shepherd</td><td class="name-cell">Tilinkó</td><td class="desc-cell">Overtone flute, no finger holes</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shepLongFlute"><td class="style-cell">Shepherd</td><td class="name-cell">Long Flute</td><td class="desc-cell">Deep resonant hosszúfurulya</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="dudaDrone"><td class="style-cell">Duda</td><td class="name-cell">Drone</td><td class="desc-cell">Continuous bass with rich harmonics</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="dudaChanter"><td class="style-cell">Duda</td><td class="name-cell">Chanter</td><td class="desc-cell">Melodic figure with grace notes</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="dudaDance"><td class="style-cell">Duda</td><td class="name-cell">Dance Tune</td><td class="desc-cell">Drone + melody combined</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="csardViolin"><td class="style-cell">Csárdás</td><td class="name-cell">Violin</td><td class="desc-cell">Fiery accelerating melody</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="csardBass"><td class="style-cell">Csárdás</td><td class="name-cell">Bőgő</td><td class="desc-cell">Percussive slapped bass</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="hallgatoViolin"><td class="style-cell">Hallgató</td><td class="name-cell">Violin</td><td class="desc-cell">Lamenting rubato melody</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="legenyViolin"><td class="style-cell">Legényes</td><td class="name-cell">Violin</td><td class="desc-cell">Angular melody, asymmetric rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="legenyGardon"><td class="style-cell">Legényes</td><td class="name-cell">Gardon</td><td class="desc-cell">Struck cello percussion</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="tzViolin"><td class="style-cell">Táncház</td><td class="name-cell">Lead Violin</td><td class="desc-cell">Driving dance melody</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="tzBracsa"><td class="style-cell">Táncház</td><td class="name-cell">Brácsá</td><td class="desc-cell">Rhythmic kontra viola</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="tzGardon"><td class="style-cell">Táncház</td><td class="name-cell">Gardon</td><td class="desc-cell">Percussive cello rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="tzBass"><td class="style-cell">Táncház</td><td class="name-cell">Double Bass</td><td class="desc-cell">Walking bass with slaps</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="tzEnsemble"><td class="style-cell">Táncház</td><td class="name-cell">Full Ensemble</td><td class="desc-cell">Complete band together</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="szekViolin"><td class="style-cell">Széki</td><td class="name-cell">Violin</td><td class="desc-cell">Modal Transylvanian melody</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="szekGardon"><td class="style-cell">Széki</td><td class="name-cell">Gardon</td><td class="desc-cell">Driving percussive rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="csangoTilinko"><td class="style-cell">Csángó</td><td class="name-cell">Tilinkó</td><td class="desc-cell">Pentatonic overtone flute</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="csangoVoice"><td class="style-cell">Csángó</td><td class="name-cell">Voice</td><td class="desc-cell">Ancient vocal ornamentation</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="csangoGardon"><td class="style-cell">Csángó</td><td class="name-cell">Gardon</td><td class="desc-cell">Archaic Moldavian rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
+            </tbody>
+        </table>
 
         <aside class="note">
             <strong>Technical Note:</strong> This gallery uses
@@ -1113,7 +834,6 @@
         // UI CONTROLLER
         // ============================================================================
         const statusEl = document.getElementById('status');
-        const cards = document.querySelectorAll('.experiment-card');
 
         let player = null;
         let currentPlaying = null;
@@ -1144,68 +864,54 @@
 
         function stopCurrent() {
             if (currentPlaying) {
-                const card = currentPlaying;
-                const btn = card.querySelector('.play-btn');
-                const progress = card.querySelector('.progress-bar-fill');
+                const row = currentPlaying;
+                const btn = row.querySelector('.play-btn');
                 btn.textContent = 'Play';
                 btn.classList.remove('playing');
-                progress.style.width = '0%';
                 clearInterval(progressInterval);
                 player?.stop();
                 currentPlaying = null;
             }
         }
 
-        async function playExperiment(card) {
-            const experimentName = card.dataset.experiment;
+        async function playExperiment(row) {
+            const experimentName = row.dataset.experiment;
             const experiment = experiments[experimentName];
             if (!experiment) return;
 
-            // Stop any current playback
             stopCurrent();
 
-            const btn = card.querySelector('.play-btn');
-            const progress = card.querySelector('.progress-bar-fill');
+            const btn = row.querySelector('.play-btn');
 
-            // Load required SynthDefs
-            btn.textContent = 'Loading...';
+            btn.textContent = '...';
             try {
                 await player.loadSynthDefs(experiment.synthDefs);
             } catch (err) {
-                btn.textContent = 'Error';
+                btn.textContent = 'Err';
                 setTimeout(() => { btn.textContent = 'Play'; }, 2000);
                 return;
             }
 
-            // Start playback
-            currentPlaying = card;
+            currentPlaying = row;
             btn.textContent = 'Stop';
             btn.classList.add('playing');
 
             experiment.play(player);
 
-            // Progress animation
-            const startTime = Date.now();
-            const duration = experiment.duration;
-            progressInterval = setInterval(() => {
-                const elapsed = (Date.now() - startTime) / 1000;
-                const prog = Math.min(elapsed / duration * 100, 100);
-                progress.style.width = prog + '%';
-
-                if (prog >= 100) {
-                    stopCurrent();
-                }
-            }, 50);
+            // Auto-stop after duration
+            progressInterval = setTimeout(() => {
+                stopCurrent();
+            }, experiment.duration * 1000);
         }
 
         // Event delegation for play buttons
         document.addEventListener('click', async (e) => {
             if (e.target.classList.contains('play-btn')) {
-                const card = e.target.closest('.experiment-card');
-                if (card === currentPlaying) {
+                const row = e.target.closest('tr[data-experiment]');
+                if (row === currentPlaying) {
                     stopCurrent();
-                } else {
-                    await playExperiment(card);
+                } else if (row) {
+                    await playExperiment(row);
                 }
             }
         });
