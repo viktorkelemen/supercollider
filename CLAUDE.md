@@ -4,8 +4,24 @@ SuperCollider live coding environment with SuperDirt integration.
 
 ## File Structure
 
-- `superdirt_startup.scd` - Server boot configuration and SuperDirt initialization
-- `test.scd` - SynthDef library with custom synthesizers
+```
+supercollider/
+├── core/                     # Essential startup files
+│   ├── superdirt_startup.scd # Server boot & SuperDirt init
+│   └── synthdefs.scd         # SynthDef library
+├── artists/                  # Artist-inspired pieces (47 files)
+├── techniques/               # Technique explorations
+│   ├── bouncing_ball/        # Physics-based rhythm
+│   ├── shepard/              # Auditory illusions
+│   └── mark_fell/            # Algorithmic rhythm
+├── studies/                  # Research projects
+│   ├── hungarian_folk/       # Folk music research
+│   ├── recreations/          # Covers & recreations
+│   └── dub_techno/           # Genre studies
+├── experiments/              # Miscellaneous WIP
+├── tools/                    # Scripts & prompts
+└── output/                   # Generated recordings
+```
 
 ## Dependencies
 
@@ -15,9 +31,9 @@ SuperCollider live coding environment with SuperDirt integration.
 ## Running the Project
 
 1. Open SuperCollider IDE
-2. Load startup file: `"path/to/superdirt_startup.scd".load`
+2. Load startup file: `"path/to/core/superdirt_startup.scd".load`
 3. Wait for server boot and "loaded successfully" message
-4. Load synth definitions: `"path/to/test.scd".load`
+4. Load synth definitions: `"path/to/core/synthdefs.scd".load`
 
 The startup configures 12 orbits (`~d1` through `~d12`) for multichannel output.
 
@@ -432,7 +448,7 @@ MIDIClient.disposeClient;  // Disconnect
 ## Common Workflows
 
 ### Adding a New SynthDef
-1. Create the definition in `test.scd` wrapped in parentheses
+1. Create the definition in `core/synthdefs.scd` wrapped in parentheses
 2. Follow the existing parameter conventions (`out`, `channel`, `amp`)
 3. Use `OffsetOut.ar()` for sample-accurate output timing
 4. End with `.add` to register
