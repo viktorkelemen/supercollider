@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verbunkos Sound Gallery</title>
+    <title>Hungarian Folk Sound Gallery</title>
     <style>
         /* ============================================================
            SuperCollider Design System
@@ -60,14 +60,6 @@
             margin-bottom: var(--space-xl);
             padding-bottom: var(--space-lg);
             border-bottom: 1px solid var(--sc-border);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--sc-title);
-            margin: 0 0 var(--space-xs) 0;
-            letter-spacing: -0.02em;
         }
 
         .subtitle {
@@ -131,41 +123,64 @@
             50% { opacity: 0.4; }
         }
 
-        /* Experiment cards */
+        /* Style sections */
+        .style-section {
+            margin-bottom: var(--space-lg);
+        }
+
+        .style-section h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--sc-title);
+            margin: 0 0 var(--space-xs) 0;
+            display: inline-block;
+        }
+
+        .style-section .style-desc {
+            color: var(--sc-text-muted);
+            margin: 0 0 var(--space-sm) 0;
+            font-size: 0.8125rem;
+        }
+
+        /* Experiment grid */
+        .experiments-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+        }
+
+        /* Experiment cards - compact inline style */
         .experiment-card {
             background: transparent;
             border: 1px solid var(--sc-border);
-            border-radius: 8px;
-            padding: var(--space-md);
-            margin-bottom: var(--space-md);
-            max-width: 600px;
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            border-radius: 6px;
+            padding: var(--space-xs) var(--space-sm);
+            transition: border-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
         }
 
         .experiment-card:hover {
-            transform: scale(1.02);
             border-color: var(--sc-light-blue);
         }
 
-        .experiment-card h2 {
-            margin: 0 0 var(--space-xs) 0;
+        .experiment-card h3 {
+            margin: 0;
             color: var(--sc-text);
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
         }
 
         .experiment-card p {
-            margin: 0 0 var(--space-sm) 0;
-            color: var(--sc-text-muted);
-            font-size: 1rem;
-            line-height: 1.6;
+            display: none;
         }
 
         /* Controls */
         .controls {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
         }
 
         button {
@@ -173,10 +188,10 @@
             background: var(--sc-bg-subtle);
             color: var(--sc-text);
             border: 1px solid var(--sc-border);
-            padding: 0.625rem 1.25rem;
-            border-radius: 6px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.9375rem;
+            font-size: 0.75rem;
             font-weight: 500;
             transition: all 0.2s ease;
         }
@@ -209,25 +224,18 @@
         }
 
         .duration {
-            color: var(--sc-text-muted);
-            font-size: 0.875rem;
-            font-family: var(--font-mono);
+            display: none;
         }
 
-        /* Progress bar */
+        /* Progress bar - hidden in compact mode */
         .progress-bar {
-            height: 3px;
-            background: var(--sc-border);
-            border-radius: 2px;
-            margin-top: var(--space-sm);
-            overflow: hidden;
+            display: none;
         }
 
         .progress-bar-fill {
             height: 100%;
             background: var(--sc-light-blue);
             width: 0%;
-            transition: width 0.1s linear;
         }
 
         /* Note/info box */
@@ -239,7 +247,7 @@
             border-radius: 8px;
             font-size: 0.9375rem;
             color: var(--sc-text-muted);
-            max-width: 600px;
+            max-width: 800px;
             line-height: 1.7;
         }
 
@@ -296,25 +304,320 @@
             Initializing SuperSonic...
         </div>
 
-        <section class="experiment-card">
-            <h2>Cimbalom Arpeggio</h2>
-            <p>Flowing broken chord on the Hungarian hammered dulcimer, exploring the Hungarian minor scale.</p>
-            <div class="controls">
-                <button id="playBtn" disabled>Play</button>
-                <span class="duration">~2s</span>
+        <!-- Verbunkos Style -->
+        <section class="style-section">
+            <h2>Verbunkos</h2>
+            <p class="style-desc">18th-century recruiting dance music featuring virtuosic cimbalom and expressive violin ornaments</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="cimbalomArpeggio">
+                    <h3>Cimbalom Arpeggio</h3>
+                    <p>Flowing broken chord on the Hungarian hammered dulcimer</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="cimbalomTremolo">
+                    <h3>Cimbalom Tremolo</h3>
+                    <p>Rapid repeated strikes creating shimmering sustained tones</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="verbViolin">
+                    <h3>Verbunkos Violin</h3>
+                    <p>Expressive melody with characteristic wide vibrato</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="verbViolinSlide">
+                    <h3>Violin Portamento</h3>
+                    <p>Sliding ornaments between notes in the Romani style</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="bracsa">
+                    <h3>Brácsá (Viola)</h3>
+                    <p>Rhythmic chordal accompaniment with offbeat accents</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
             </div>
-            <div class="progress-bar">
-                <div id="progress" class="progress-bar-fill"></div>
+        </section>
+
+        <!-- Shepherd Style -->
+        <section class="style-section">
+            <h2>Shepherd Music</h2>
+            <p class="style-desc">Ancient pastoral melodies played on wooden flutes in the Transylvanian highlands</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="shepFurulya">
+                    <h3>Furulya</h3>
+                    <p>Six-hole wooden recorder with breathy overtones</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="shepTilinko">
+                    <h3>Tilinkó</h3>
+                    <p>Overtone flute played without finger holes</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="shepLongFlute">
+                    <h3>Long Flute</h3>
+                    <p>Deep resonant tones of the hosszúfurulya</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~4s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Duda Style -->
+        <section class="style-section">
+            <h2>Duda (Bagpipe)</h2>
+            <p class="style-desc">Hungarian goatskin bagpipe with continuous drone and ornamental chanter</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="dudaDrone">
+                    <h3>Drone</h3>
+                    <p>Continuous bass note with rich harmonic spectrum</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~4s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="dudaChanter">
+                    <h3>Chanter Phrase</h3>
+                    <p>Short melodic figure with grace notes</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="dudaDance">
+                    <h3>Dance Tune</h3>
+                    <p>Complete bagpipe dance with drone and melody</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~5s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Csárdás Style -->
+        <section class="style-section">
+            <h2>Csárdás</h2>
+            <p class="style-desc">Traditional couple dance alternating between slow (lassú) and fast (friss) sections</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="csardViolin">
+                    <h3>Csárdás Violin</h3>
+                    <p>Fiery accelerating melody with double stops</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="csardBass">
+                    <h3>Bőgő (Bass)</h3>
+                    <p>Percussive slapped bass providing rhythmic foundation</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hallgató Style -->
+        <section class="style-section">
+            <h2>Hallgató</h2>
+            <p class="style-desc">Free-tempo "listening music" — deeply expressive rubato melodies</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="hallgatoViolin">
+                    <h3>Hallgató Violin</h3>
+                    <p>Lamenting melody with extreme rubato and ornamentation</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~5s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Legényes Style -->
+        <section class="style-section">
+            <h2>Legényes</h2>
+            <p class="style-desc">Solo men's dance from Kalotaszeg with complex asymmetric rhythms</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="legenyViolin">
+                    <h3>Legényes Violin</h3>
+                    <p>Angular melody with surprising accents</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="legenyGardon">
+                    <h3>Gardon</h3>
+                    <p>Struck cello providing percussive rhythm</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Táncház Style -->
+        <section class="style-section">
+            <h2>Táncház</h2>
+            <p class="style-desc">Village dance house ensemble with full string band texture</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="tzViolin">
+                    <h3>Lead Violin</h3>
+                    <p>Driving dance melody with rhythmic bow strokes</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="tzBracsa">
+                    <h3>Brácsá Accompaniment</h3>
+                    <p>Rhythmic chords on the kontra viola</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="tzGardon">
+                    <h3>Gardon Beat</h3>
+                    <p>Percussive struck cello rhythm</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="tzBass">
+                    <h3>Double Bass</h3>
+                    <p>Walking bass line with slapped accents</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="tzEnsemble">
+                    <h3>Full Ensemble</h3>
+                    <p>Complete táncház band playing together</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~4s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Széki Style -->
+        <section class="style-section">
+            <h2>Széki</h2>
+            <p class="style-desc">Archaic style from the village of Szék with modal melodies and gardon accompaniment</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="szekViolin">
+                    <h3>Széki Violin</h3>
+                    <p>Modal melody in the ancient Szék style</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="szekGardon">
+                    <h3>Széki Gardon</h3>
+                    <p>Driving percussive rhythm on struck cello</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Csángó Style -->
+        <section class="style-section">
+            <h2>Csángó</h2>
+            <p class="style-desc">Ancient Hungarian community in Moldavia with archaic pentatonic melodies</p>
+            <div class="experiments-grid">
+                <div class="experiment-card" data-experiment="csangoTilinko">
+                    <h3>Csángó Tilinkó</h3>
+                    <p>Overtone flute with pentatonic melody</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~3s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="csangoVoice">
+                    <h3>Csángó Voice</h3>
+                    <p>Ancient vocal style with characteristic ornamentation</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~4s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
+                <div class="experiment-card" data-experiment="csangoGardon">
+                    <h3>Csángó Gardon</h3>
+                    <p>Archaic rhythm patterns from Moldavia</p>
+                    <div class="controls">
+                        <button class="play-btn" disabled>Play</button>
+                        <span class="duration">~2s</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+                </div>
             </div>
         </section>
 
         <aside class="note">
-            <strong>Technical Note:</strong> This demo uses
+            <strong>Technical Note:</strong> This gallery uses
             <a href="https://github.com/samaaron/supersonic">SuperSonic</a>
             to run SuperCollider's synthesis engine directly in your browser via WebAssembly.
             <br><br>
-            The <code>\cimbalom</code> SynthDef creates metallic tones using additive synthesis
-            with inharmonic partials, simulating the stretched strings of a real cimbalom.
+            Each instrument is a <code>SynthDef</code> — a compiled synthesis algorithm that models
+            the acoustic properties of traditional Hungarian folk instruments. The gallery includes
+            28 different instruments across 9 regional styles.
         </aside>
     </main>
 
@@ -324,14 +627,22 @@
 
     <script type="module">
         // ============================================================================
-        // HUNGARIAN MINOR SCALE
+        // SCALES & THEORY
         // ============================================================================
         const HUNGARIAN_MINOR = [0, 2, 3, 6, 7, 8, 11];
+        const DORIAN = [0, 2, 3, 5, 7, 9, 10];
+        const MIXOLYDIAN = [0, 2, 4, 5, 7, 9, 10];
+        const PENTATONIC = [0, 2, 4, 7, 9];
+        const LYDIAN_DOMINANT = [0, 2, 4, 6, 7, 9, 10];
 
         function scaleToFreq(root, scale, degree, octave = 0) {
             const idx = ((degree % scale.length) + scale.length) % scale.length;
             const oct = Math.floor(degree / scale.length) + octave;
             const midi = root + scale[idx] + (oct * 12);
+            return 440 * Math.pow(2, (midi - 69) / 12);
+        }
+
+        function midiToFreq(midi) {
             return 440 * Math.pow(2, (midi - 69) / 12);
         }
 
@@ -343,10 +654,10 @@
                 this.ss = null;
                 this.nodeId = 1000;
                 this.timers = [];
+                this.loadedSynthDefs = new Set();
             }
 
             async init() {
-                // Import SuperSonic from the self-hosted bundle
                 const { SuperSonic } = await import('./supersonic/supersonic.js');
                 this.ss = new SuperSonic({
                     workerBaseURL: './supersonic/workers/',
@@ -357,7 +668,24 @@
             }
 
             async loadSynthDef(name) {
-                return await this.ss.loadSynthDefs([name]);
+                if (this.loadedSynthDefs.has(name)) return true;
+                const result = await this.ss.loadSynthDefs([name]);
+                if (result && result.length > 0) {
+                    this.loadedSynthDefs.add(name);
+                    return true;
+                }
+                return false;
+            }
+
+            async loadSynthDefs(names) {
+                const toLoad = names.filter(n => !this.loadedSynthDefs.has(n));
+                if (toLoad.length === 0) return true;
+                const result = await this.ss.loadSynthDefs(toLoad);
+                if (result) {
+                    toLoad.forEach(n => this.loadedSynthDefs.add(n));
+                    return true;
+                }
+                return false;
             }
 
             at(time, synthDef, params = {}) {
@@ -380,38 +708,415 @@
         }
 
         // ============================================================================
-        // CIMBALOM ARPEGGIO EXPERIMENT
+        // EXPERIMENT DEFINITIONS
         // ============================================================================
-        function playCimbalomArpeggio(player) {
-            const root = 48;  // C3
-            const scale = HUNGARIAN_MINOR;
-            const arpeggio = [0, 2, 4, 6, 7, 6, 4, 2];
+        const experiments = {
+            // Verbunkos
+            cimbalomArpeggio: {
+                synthDefs: ['cimbalom'],
+                duration: 2,
+                play: (p) => {
+                    const arpeggio = [0, 2, 4, 6, 7, 6, 4, 2];
+                    let t = 0;
+                    arpeggio.forEach((deg, i) => {
+                        p.at(t, 'cimbalom', {
+                            freq: scaleToFreq(60, HUNGARIAN_MINOR, deg),
+                            dur: 0.8, amp: 0.25,
+                            pan: (i / 7) * 0.8 - 0.4
+                        });
+                        t += 0.12;
+                    });
+                }
+            },
+            cimbalomTremolo: {
+                synthDefs: ['cimbalomTremolo'],
+                duration: 3,
+                play: (p) => {
+                    [0, 4, 7].forEach((deg, i) => {
+                        p.at(i * 0.8, 'cimbalomTremolo', {
+                            freq: scaleToFreq(60, HUNGARIAN_MINOR, deg),
+                            dur: 1.5, amp: 0.2, tremoloRate: 12
+                        });
+                    });
+                }
+            },
+            verbViolin: {
+                synthDefs: ['verbViolin'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 3, 4, 6, 7, 6, 4, 3];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'verbViolin', {
+                            freq: scaleToFreq(62, HUNGARIAN_MINOR, deg),
+                            dur: 0.35, amp: 0.3, vibRate: 5.5, vibDepth: 0.015
+                        });
+                        t += 0.35;
+                    });
+                }
+            },
+            verbViolinSlide: {
+                synthDefs: ['verbViolinSlide'],
+                duration: 2,
+                play: (p) => {
+                    p.at(0, 'verbViolinSlide', {
+                        startFreq: midiToFreq(62), endFreq: midiToFreq(67),
+                        dur: 0.8, slideTime: 0.15, amp: 0.3
+                    });
+                    p.at(0.9, 'verbViolinSlide', {
+                        startFreq: midiToFreq(67), endFreq: midiToFreq(62),
+                        dur: 0.8, slideTime: 0.2, amp: 0.3
+                    });
+                }
+            },
+            bracsa: {
+                synthDefs: ['bracsa'],
+                duration: 2,
+                play: (p) => {
+                    for (let i = 0; i < 8; i++) {
+                        p.at(i * 0.25, 'bracsa', {
+                            freq: midiToFreq(50), dur: 0.2, amp: 0.25
+                        });
+                    }
+                }
+            },
 
-            let time = 0;
-            const noteInterval = 0.12;
+            // Shepherd
+            shepFurulya: {
+                synthDefs: ['shepFurulya'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 2, 4, 5, 4, 2, 0];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'shepFurulya', {
+                            freq: scaleToFreq(67, DORIAN, deg),
+                            dur: 0.4, amp: 0.25, breath: 0.15
+                        });
+                        t += 0.4;
+                    });
+                }
+            },
+            shepTilinko: {
+                synthDefs: ['shepTilinko'],
+                duration: 3,
+                play: (p) => {
+                    const harmonics = [2, 3, 4, 5, 6, 5, 4, 3];
+                    let t = 0;
+                    harmonics.forEach((h) => {
+                        p.at(t, 'shepTilinko', {
+                            freq: 220 * h, dur: 0.35, amp: 0.2
+                        });
+                        t += 0.35;
+                    });
+                }
+            },
+            shepLongFlute: {
+                synthDefs: ['shepLongFlute'],
+                duration: 4,
+                play: (p) => {
+                    const melody = [0, 2, 4, 2, 0];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'shepLongFlute', {
+                            freq: scaleToFreq(48, DORIAN, deg),
+                            dur: 0.7, amp: 0.25
+                        });
+                        t += 0.75;
+                    });
+                }
+            },
 
-            arpeggio.forEach((deg, i) => {
-                player.at(time, 'cimbalom', {
-                    freq: scaleToFreq(root + 12, scale, deg),
-                    dur: 0.8,
-                    amp: 0.25,
-                    pan: (i / 7) * 0.8 - 0.4  // Spread across stereo field
-                });
-                time += noteInterval;
-            });
+            // Duda
+            dudaDrone: {
+                synthDefs: ['dudaDrone'],
+                duration: 4,
+                play: (p) => {
+                    p.at(0, 'dudaDrone', {
+                        freq: midiToFreq(43), dur: 3.5, amp: 0.3
+                    });
+                }
+            },
+            dudaChanter: {
+                synthDefs: ['dudaChanter'],
+                duration: 2,
+                play: (p) => {
+                    const melody = [0, 2, 4, 5, 4, 2];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'dudaChanter', {
+                            freq: scaleToFreq(55, LYDIAN_DOMINANT, deg),
+                            dur: 0.25, amp: 0.25
+                        });
+                        t += 0.3;
+                    });
+                }
+            },
+            dudaDance: {
+                synthDefs: ['dudaDrone', 'dudaChanter'],
+                duration: 5,
+                play: (p) => {
+                    // Drone
+                    p.at(0, 'dudaDrone', { freq: midiToFreq(43), dur: 4.5, amp: 0.25 });
+                    // Melody
+                    const melody = [0, 2, 4, 5, 7, 5, 4, 2, 0, 2, 4, 2, 0];
+                    let t = 0.2;
+                    melody.forEach((deg) => {
+                        p.at(t, 'dudaChanter', {
+                            freq: scaleToFreq(55, LYDIAN_DOMINANT, deg),
+                            dur: 0.3, amp: 0.2
+                        });
+                        t += 0.32;
+                    });
+                }
+            },
 
-            return time + 0.8;  // Total duration
-        }
+            // Csárdás
+            csardViolin: {
+                synthDefs: ['csardViolin'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 2, 3, 6, 7, 6, 3, 2, 0];
+                    let t = 0;
+                    let dur = 0.4;
+                    melody.forEach((deg, i) => {
+                        // Accelerando
+                        dur = 0.4 - (i * 0.03);
+                        p.at(t, 'csardViolin', {
+                            freq: scaleToFreq(62, HUNGARIAN_MINOR, deg),
+                            dur: dur * 0.9, amp: 0.3
+                        });
+                        t += dur;
+                    });
+                }
+            },
+            csardBass: {
+                synthDefs: ['csardBass'],
+                duration: 2,
+                play: (p) => {
+                    for (let i = 0; i < 8; i++) {
+                        const isAccent = i % 2 === 1;
+                        p.at(i * 0.25, 'csardBass', {
+                            freq: midiToFreq(38),
+                            dur: 0.15,
+                            amp: isAccent ? 0.35 : 0.2
+                        });
+                    }
+                }
+            },
+
+            // Hallgató
+            hallgatoViolin: {
+                synthDefs: ['hallgatoViolin'],
+                duration: 5,
+                play: (p) => {
+                    const melody = [0, 3, 6, 7, 6, 3, 0];
+                    const durations = [0.8, 0.6, 0.9, 0.5, 0.7, 0.6, 1.0];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        p.at(t, 'hallgatoViolin', {
+                            freq: scaleToFreq(62, HUNGARIAN_MINOR, deg),
+                            dur: durations[i], amp: 0.3, vibRate: 5, vibDepth: 0.02
+                        });
+                        t += durations[i] + 0.1;
+                    });
+                }
+            },
+
+            // Legényes
+            legenyViolin: {
+                synthDefs: ['legenyViolin'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 4, 2, 5, 0, 4, 7, 4];
+                    const rhythm = [0.3, 0.3, 0.4, 0.3, 0.3, 0.4, 0.5, 0.3];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        p.at(t, 'legenyViolin', {
+                            freq: scaleToFreq(62, DORIAN, deg),
+                            dur: rhythm[i] * 0.9, amp: 0.3
+                        });
+                        t += rhythm[i];
+                    });
+                }
+            },
+            legenyGardon: {
+                synthDefs: ['legenyGardon'],
+                duration: 2,
+                play: (p) => {
+                    const rhythm = [0, 0.3, 0.5, 0.8, 1.1, 1.3, 1.6, 1.8];
+                    rhythm.forEach((t, i) => {
+                        p.at(t, 'legenyGardon', {
+                            freq: midiToFreq(36),
+                            dur: 0.15,
+                            amp: (i % 3 === 0) ? 0.35 : 0.2
+                        });
+                    });
+                }
+            },
+
+            // Táncház
+            tzViolin: {
+                synthDefs: ['tzViolin'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 2, 4, 5, 4, 2, 0, 2, 0];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'tzViolin', {
+                            freq: scaleToFreq(62, MIXOLYDIAN, deg),
+                            dur: 0.3, amp: 0.25
+                        });
+                        t += 0.32;
+                    });
+                }
+            },
+            tzBracsa: {
+                synthDefs: ['tzBracsa'],
+                duration: 2,
+                play: (p) => {
+                    for (let i = 0; i < 8; i++) {
+                        p.at(i * 0.25, 'tzBracsa', {
+                            freq: midiToFreq(50), dur: 0.15, amp: 0.2
+                        });
+                    }
+                }
+            },
+            tzGardon: {
+                synthDefs: ['tzGardon'],
+                duration: 2,
+                play: (p) => {
+                    for (let i = 0; i < 8; i++) {
+                        p.at(i * 0.25, 'tzGardon', {
+                            freq: midiToFreq(36), dur: 0.1, amp: 0.25
+                        });
+                    }
+                }
+            },
+            tzBass: {
+                synthDefs: ['tzBass'],
+                duration: 2,
+                play: (p) => {
+                    const pattern = [0, 0.5, 1.0, 1.25, 1.5];
+                    pattern.forEach((t) => {
+                        p.at(t, 'tzBass', {
+                            freq: midiToFreq(38), dur: 0.2, amp: 0.3
+                        });
+                    });
+                }
+            },
+            tzEnsemble: {
+                synthDefs: ['tzViolin', 'tzBracsa', 'tzGardon', 'tzBass'],
+                duration: 4,
+                play: (p) => {
+                    // Melody
+                    const melody = [0, 2, 4, 5, 4, 2, 0, 2, 4, 5, 7, 5];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'tzViolin', {
+                            freq: scaleToFreq(62, MIXOLYDIAN, deg),
+                            dur: 0.28, amp: 0.2
+                        });
+                        t += 0.3;
+                    });
+                    // Accompaniment
+                    for (let i = 0; i < 12; i++) {
+                        const beat = i * 0.3;
+                        p.at(beat, 'tzBracsa', { freq: midiToFreq(50), dur: 0.12, amp: 0.12 });
+                        p.at(beat, 'tzGardon', { freq: midiToFreq(36), dur: 0.08, amp: 0.15 });
+                        if (i % 2 === 0) {
+                            p.at(beat, 'tzBass', { freq: midiToFreq(38), dur: 0.15, amp: 0.2 });
+                        }
+                    }
+                }
+            },
+
+            // Széki
+            szekViolin: {
+                synthDefs: ['szekViolin'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 2, 3, 5, 3, 2, 0, 2, 0];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'szekViolin', {
+                            freq: scaleToFreq(62, DORIAN, deg),
+                            dur: 0.32, amp: 0.28
+                        });
+                        t += 0.34;
+                    });
+                }
+            },
+            szekGardon: {
+                synthDefs: ['szekGardon'],
+                duration: 2,
+                play: (p) => {
+                    for (let i = 0; i < 8; i++) {
+                        p.at(i * 0.25, 'szekGardon', {
+                            freq: midiToFreq(36),
+                            dur: 0.12,
+                            amp: (i % 2 === 0) ? 0.3 : 0.18
+                        });
+                    }
+                }
+            },
+
+            // Csángó
+            csangoTilinko: {
+                synthDefs: ['csangoTilinko'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 2, 4, 2, 0, 4, 2, 0];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'csangoTilinko', {
+                            freq: scaleToFreq(67, PENTATONIC, deg),
+                            dur: 0.35, amp: 0.22
+                        });
+                        t += 0.38;
+                    });
+                }
+            },
+            csangoVoice: {
+                synthDefs: ['csangoVoice'],
+                duration: 4,
+                play: (p) => {
+                    const melody = [0, 2, 4, 2, 0, -1, 0];
+                    const durations = [0.5, 0.4, 0.6, 0.4, 0.5, 0.4, 0.7];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        p.at(t, 'csangoVoice', {
+                            freq: scaleToFreq(60, PENTATONIC, deg),
+                            dur: durations[i], amp: 0.25, vibRate: 5.5
+                        });
+                        t += durations[i] + 0.05;
+                    });
+                }
+            },
+            csangoGardon: {
+                synthDefs: ['csangoGardon'],
+                duration: 2,
+                play: (p) => {
+                    const rhythm = [0, 0.25, 0.5, 0.65, 0.9, 1.15, 1.4, 1.65, 1.8];
+                    rhythm.forEach((t, i) => {
+                        p.at(t, 'csangoGardon', {
+                            freq: midiToFreq(36),
+                            dur: 0.1,
+                            amp: (i % 4 === 0) ? 0.32 : 0.18
+                        });
+                    });
+                }
+            }
+        };
 
         // ============================================================================
         // UI CONTROLLER
         // ============================================================================
         const statusEl = document.getElementById('status');
-        const playBtn = document.getElementById('playBtn');
-        const progressEl = document.getElementById('progress');
+        const cards = document.querySelectorAll('.experiment-card');
 
         let player = null;
-        let isPlaying = false;
+        let currentPlaying = null;
         let progressInterval = null;
 
         async function initAudio() {
@@ -419,59 +1124,94 @@
                 player = new Player();
                 await player.init();
 
-                const result = await player.loadSynthDef('cimbalom');
-                if (!result || result.length === 0) {
-                    throw new Error('Failed to load cimbalom SynthDef');
-                }
+                // Load initial set of SynthDefs
+                const initialSynthDefs = ['cimbalom', 'cimbalomTremolo', 'verbViolin',
+                    'verbViolinSlide', 'bracsa'];
+                await player.loadSynthDefs(initialSynthDefs);
 
                 statusEl.className = 'status ready';
                 statusEl.textContent = 'SuperSonic ready';
-                playBtn.disabled = false;
+
+                // Enable all play buttons
+                document.querySelectorAll('.play-btn').forEach(btn => {
+                    btn.disabled = false;
+                });
             } catch (err) {
                 statusEl.className = 'status error';
                 statusEl.textContent = `Error: ${err.message}`;
             }
         }
 
-        function play() {
-            if (isPlaying) {
-                stop();
+        function stopCurrent() {
+            if (currentPlaying) {
+                const card = currentPlaying;
+                const btn = card.querySelector('.play-btn');
+                const progress = card.querySelector('.progress-bar-fill');
+                btn.textContent = 'Play';
+                btn.classList.remove('playing');
+                progress.style.width = '0%';
+                clearInterval(progressInterval);
+                player?.stop();
+                currentPlaying = null;
+            }
+        }
+
+        async function playExperiment(card) {
+            const experimentName = card.dataset.experiment;
+            const experiment = experiments[experimentName];
+            if (!experiment) return;
+
+            // Stop any current playback
+            stopCurrent();
+
+            const btn = card.querySelector('.play-btn');
+            const progress = card.querySelector('.progress-bar-fill');
+
+            // Load required SynthDefs
+            btn.textContent = 'Loading...';
+            try {
+                await player.loadSynthDefs(experiment.synthDefs);
+            } catch (err) {
+                btn.textContent = 'Error';
+                setTimeout(() => { btn.textContent = 'Play'; }, 2000);
                 return;
             }
 
-            isPlaying = true;
-            playBtn.textContent = 'Stop';
-            playBtn.classList.add('playing');
+            // Start playback
+            currentPlaying = card;
+            btn.textContent = 'Stop';
+            btn.classList.add('playing');
 
-            const duration = playCimbalomArpeggio(player);
+            experiment.play(player);
 
-            // Progress bar animation
+            // Progress animation
             const startTime = Date.now();
+            const duration = experiment.duration;
             progressInterval = setInterval(() => {
                 const elapsed = (Date.now() - startTime) / 1000;
-                const progress = Math.min(elapsed / duration * 100, 100);
-                progressEl.style.width = progress + '%';
+                const prog = Math.min(elapsed / duration * 100, 100);
+                progress.style.width = prog + '%';
 
-                if (progress >= 100) {
-                    stop();
+                if (prog >= 100) {
+                    stopCurrent();
                 }
             }, 50);
         }
 
-        function stop() {
-            isPlaying = false;
-            playBtn.textContent = 'Play';
-            playBtn.classList.remove('playing');
-            clearInterval(progressInterval);
-            progressEl.style.width = '0%';
-            player?.stop();
-        }
+        // Event delegation for play buttons
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('play-btn')) {
+                const card = e.target.closest('.experiment-card');
+                if (card === currentPlaying) {
+                    stopCurrent();
+                } else {
+                    await playExperiment(card);
+                }
+            }
+        });
 
-        playBtn.addEventListener('click', play);
-
-        // Initialize on first user interaction (required for audio context)
+        // Initialize on first user interaction
         document.body.addEventListener('click', () => initAudio(), { once: true });
-
         statusEl.textContent = 'Click anywhere to initialize audio...';
     </script>
 </body>
