@@ -272,17 +272,23 @@ var lassuDurs = [1, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5, 0.5, 0.5,
 var frissMelody = [0, 2, 4, 4, 3, 2, 0, 0, 0, 4, 3, 2, 0, -1, 0, 0];
 
 Routine({
+    // All var declarations at top
+    var lassuTempo = 0.4;
+    var transSteps = 16;
+    var startTempo = 0.35;
+    var midTempo = 0.15;
+    var frissTempo = 0.13;
+    var dur, bassNote, tempo, deg;
+
     "=== CSÁRDÁS - Complete Form ===".postln;
 
     // ---- LASSÚ (slow) ----
     "".postln;
     "--- Lassú (slow, expressive) ---".postln;
 
-    var lassuTempo = 0.4;
-
     lassuMelody.do { |deg, i|
-        var dur = lassuDurs[i] * lassuTempo;
-        var bassNote = if([0, 4, 8, 12].includes(i), 0, nil);
+        dur = lassuDurs[i] * lassuTempo;
+        bassNote = if([0, 4, 8, 12].includes(i), 0, nil);
 
         Synth(\csardViolin, [
             \freq, ~scaleToFreq.(melodyRoot, scale, deg),
@@ -316,13 +322,9 @@ Routine({
     "".postln;
     "--- Transition (accelerando) ---".postln;
 
-    var transSteps = 16;
-    var startTempo = 0.35;
-    var midTempo = 0.15;
-
     transSteps.do { |i|
-        var tempo = startTempo.blend(midTempo, i / (transSteps - 1));
-        var deg = [0, 4, 3, 4].wrapAt(i);
+        tempo = startTempo.blend(midTempo, i / (transSteps - 1));
+        deg = [0, 4, 3, 4].wrapAt(i);
 
         Synth(\csardViolin, [
             \freq, ~scaleToFreq.(melodyRoot, scale, deg),
@@ -346,8 +348,6 @@ Routine({
     // ---- FRISS (fast) ----
     "".postln;
     "--- Friss (fast, driving) ---".postln;
-
-    var frissTempo = 0.13;
 
     2.do { |repeat|
         frissMelody.do { |deg, i|
