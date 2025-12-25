@@ -336,6 +336,18 @@
                 <tr data-experiment="csangoTilinko"><td class="style-cell">Csángó</td><td class="name-cell">Tilinkó</td><td class="desc-cell">Pentatonic overtone flute</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="csangoVoice"><td class="style-cell">Csángó</td><td class="name-cell">Voice</td><td class="desc-cell">Ancient vocal ornamentation</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="csangoGardon"><td class="style-cell">Csángó</td><td class="name-cell">Gardon</td><td class="desc-cell">Archaic Moldavian rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="kotoPluck"><td class="style-cell">Japanese</td><td class="name-cell">Koto Pluck</td><td class="desc-cell">Hirajoshi plucked strings</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="kotoOshide"><td class="style-cell">Japanese</td><td class="name-cell">Koto Oshide</td><td class="desc-cell">Pitch bend aftertouch</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="kotoTremolo"><td class="style-cell">Japanese</td><td class="name-cell">Koto Tremolo</td><td class="desc-cell">Rapid repeated plucks</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="kotoSweep"><td class="style-cell">Japanese</td><td class="name-cell">Koto Sweep</td><td class="desc-cell">Arpeggiated string sweep</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shakuhachiBreath"><td class="style-cell">Japanese</td><td class="name-cell">Shakuhachi Breath</td><td class="desc-cell">Breathy bamboo tone</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shakuhachiMeri"><td class="style-cell">Japanese</td><td class="name-cell">Shakuhachi Meri</td><td class="desc-cell">Downward pitch bend</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shakuhachiKari"><td class="style-cell">Japanese</td><td class="name-cell">Shakuhachi Kari</td><td class="desc-cell">Upward pitch bend</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shakuhachiMuraiki"><td class="style-cell">Japanese</td><td class="name-cell">Shakuhachi Muraiki</td><td class="desc-cell">Explosive breath attack</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shamisenSawari"><td class="style-cell">Japanese</td><td class="name-cell">Shamisen Sawari</td><td class="desc-cell">Buzzed plucked tone</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shamisenDrone"><td class="style-cell">Japanese</td><td class="name-cell">Shamisen Drone</td><td class="desc-cell">Open string resonance</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shamisenSlide"><td class="style-cell">Japanese</td><td class="name-cell">Shamisen Slide</td><td class="desc-cell">Suri pitch slide</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="shamisenTsugaru"><td class="style-cell">Japanese</td><td class="name-cell">Shamisen Tsugaru</td><td class="desc-cell">Powerful bachi stroke</td><td><button class="play-btn" disabled>Play</button></td></tr>
             </tbody>
         </table>
 
@@ -363,6 +375,12 @@
         const MIXOLYDIAN = [0, 2, 4, 5, 7, 9, 10];
         const PENTATONIC = [0, 2, 4, 7, 9];
         const LYDIAN_DOMINANT = [0, 2, 4, 6, 7, 9, 10];
+        const YO = [0, 2, 5, 7, 9];
+        const IN = [0, 1, 5, 7, 8];
+        const HIRAJOSHI = [0, 2, 3, 7, 8];
+        const KUMOIJOSHI = [0, 1, 5, 7, 8];
+        const IWATO = [0, 1, 5, 6, 10];
+        const RYUKYU = [0, 4, 5, 7, 11];
 
         function scaleToFreq(root, scale, degree, octave = 0) {
             const idx = ((degree % scale.length) + scale.length) % scale.length;
@@ -908,6 +926,172 @@
                             freq: midiToFreq(43),
                             dur: 0.1,
                             amp: (i % 4 === 0) ? 0.36 : 0.22
+                        });
+                    });
+                }
+            },
+
+            // Japanese folk
+            kotoPluck: {
+                synthDefs: ['koto'],
+                duration: 4,
+                play: (p) => {
+                    const melody = [0, 2, 3, 4, 2, 0, -1, 0];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        p.at(t, 'koto', {
+                            freq: scaleToFreq(60, HIRAJOSHI, deg),
+                            dur: 1.2, amp: 0.28,
+                            pan: (i % 2 === 0) ? -0.2 : 0.2
+                        });
+                        t += 0.45;
+                    });
+                }
+            },
+            kotoOshide: {
+                synthDefs: ['kotoOshide'],
+                duration: 4,
+                play: (p) => {
+                    const melody = [0, 2, 4, 3, 2, 0];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        p.at(t, 'kotoOshide', {
+                            freq: scaleToFreq(62, KUMOIJOSHI, deg),
+                            dur: 1.1, amp: 0.26,
+                            bendDepth: 0.8 + (i % 2) * 0.4
+                        });
+                        t += 0.5;
+                    });
+                }
+            },
+            kotoTremolo: {
+                synthDefs: ['kotoTremolo'],
+                duration: 3,
+                play: (p) => {
+                    [0, 2, 4, 2].forEach((deg, i) => {
+                        p.at(i * 0.8, 'kotoTremolo', {
+                            freq: scaleToFreq(60, YO, deg),
+                            dur: 0.9, amp: 0.22, rate: 10
+                        });
+                    });
+                }
+            },
+            kotoSweep: {
+                synthDefs: ['kotoSweep'],
+                duration: 2,
+                play: (p) => {
+                    p.at(0, 'kotoSweep', {
+                        baseFreq: midiToFreq(55),
+                        dur: 1.2, amp: 0.28, spread: 0.06
+                    });
+                    p.at(1.0, 'kotoSweep', {
+                        baseFreq: midiToFreq(60),
+                        dur: 1.0, amp: 0.24, spread: 0.05, direction: -1
+                    });
+                }
+            },
+            shakuhachiBreath: {
+                synthDefs: ['shakuhachi'],
+                duration: 5,
+                play: (p) => {
+                    const melody = [0, 2, 4, 2, 1, 0];
+                    const durations = [1.6, 1.2, 1.8, 1.0, 1.2, 2.0];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        p.at(t, 'shakuhachi', {
+                            freq: scaleToFreq(62, IN, deg),
+                            dur: durations[i],
+                            amp: 0.28,
+                            breathiness: 0.45,
+                            vibDepth: 0.01,
+                            vibDelay: 0.4
+                        });
+                        t += durations[i] + 0.2;
+                    });
+                }
+            },
+            shakuhachiMeri: {
+                synthDefs: ['shakuhachiMeri'],
+                duration: 2,
+                play: (p) => {
+                    p.at(0, 'shakuhachiMeri', {
+                        freq: scaleToFreq(62, IN, 2),
+                        dur: 1.5, amp: 0.3, meriDepth: 1.2
+                    });
+                }
+            },
+            shakuhachiKari: {
+                synthDefs: ['shakuhachiKari'],
+                duration: 2,
+                play: (p) => {
+                    p.at(0, 'shakuhachiKari', {
+                        freq: scaleToFreq(62, IN, 1),
+                        dur: 1.2, amp: 0.3, kariDepth: 0.7
+                    });
+                }
+            },
+            shakuhachiMuraiki: {
+                synthDefs: ['shakuhachiMuraiki'],
+                duration: 1,
+                play: (p) => {
+                    [0, 0.4, 0.8].forEach((t) => {
+                        p.at(t, 'shakuhachiMuraiki', {
+                            freq: scaleToFreq(62, IN, 0),
+                            dur: 0.3, amp: 0.35
+                        });
+                    });
+                }
+            },
+            shamisenSawari: {
+                synthDefs: ['shamisen'],
+                duration: 3,
+                play: (p) => {
+                    const melody = [0, 2, 4, 2, 0, -1, 0];
+                    let t = 0;
+                    melody.forEach((deg) => {
+                        p.at(t, 'shamisen', {
+                            freq: scaleToFreq(50, IN, deg),
+                            dur: 0.7, amp: 0.32, sawari: 0.6
+                        });
+                        t += 0.4;
+                    });
+                }
+            },
+            shamisenDrone: {
+                synthDefs: ['shamisenDrone'],
+                duration: 3,
+                play: (p) => {
+                    p.at(0, 'shamisenDrone', {
+                        freq: midiToFreq(50),
+                        dur: 2.6, amp: 0.28, sawari: 0.7
+                    });
+                }
+            },
+            shamisenSlide: {
+                synthDefs: ['shamisenSlide'],
+                duration: 3,
+                play: (p) => {
+                    p.at(0, 'shamisenSlide', {
+                        startFreq: scaleToFreq(50, IN, 0),
+                        endFreq: scaleToFreq(50, IN, 2),
+                        dur: 1.0, amp: 0.3
+                    });
+                    p.at(1.2, 'shamisenSlide', {
+                        startFreq: scaleToFreq(50, IN, 2),
+                        endFreq: scaleToFreq(50, IN, 1),
+                        dur: 1.0, amp: 0.3
+                    });
+                }
+            },
+            shamisenTsugaru: {
+                synthDefs: ['shamisenTsugaru'],
+                duration: 3,
+                play: (p) => {
+                    const hits = [0, 0.45, 0.9, 1.4, 1.9];
+                    hits.forEach((t, i) => {
+                        p.at(t, 'shamisenTsugaru', {
+                            freq: scaleToFreq(50, IN, i % 3),
+                            dur: 0.9, amp: 0.36, sawari: 0.8
                         });
                     });
                 }

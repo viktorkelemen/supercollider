@@ -552,6 +552,324 @@ SynthDef(\csangoGardon, {
 }).writeDefFile(outputDir);
 
 // ============================================================================
+// JAPANESE FOLK
+// ============================================================================
+"[Japanese] Compiling koto...".postln;
+
+SynthDef(\koto, {
+    |out = 0, freq = 440, amp = 0.3, dur = 1.5, pan = 0,
+     brightness = 0.7, resonance = 0.6,
+     attack = 0.003, decay = 0.1|
+    var env, string, body, sig;
+    var exciter, combFreq, formant1, formant2, formant3;
+    env = EnvGen.kr(Env.perc(attack, dur, 1, -6), doneAction: 2);
+    exciter = Impulse.ar(0) + (WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.005)));
+    combFreq = freq.reciprocal;
+    string = CombL.ar(exciter, 0.05, combFreq, dur * resonance);
+    string = string + (CombL.ar(exciter, 0.025, combFreq * 0.5, dur * 0.7) * 0.3);
+    string = string + (CombL.ar(exciter, 0.017, combFreq * 0.333, dur * 0.5) * 0.15);
+    formant1 = BPF.ar(string, 250, 0.3) * 2;
+    formant2 = BPF.ar(string, 800, 0.25) * 2.5;
+    formant3 = BPF.ar(string, 3500, 0.2) * 2;
+    body = string + formant1 + formant2 + formant3;
+    sig = LPF.ar(body, freq * (3 + (brightness * 10)));
+    sig = (sig * 1.2).tanh * 0.8;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\kotoOshide, {
+    |out = 0, freq = 440, amp = 0.3, dur = 1.5, pan = 0,
+     bendDepth = 1.0, bendDelay = 0.15, bendTime = 0.2,
+     brightness = 0.7, resonance = 0.6|
+    var env, bendEnv, currentFreq, exciter, string, sig;
+    var formant1, formant2, formant3;
+    bendEnv = EnvGen.kr(
+        Env([0, 0, bendDepth, bendDepth * 0.8],
+            [bendDelay, bendTime, dur - bendDelay - bendTime],
+            [0, 3, -2])
+    );
+    currentFreq = freq * (2 ** (bendEnv / 12));
+    env = EnvGen.kr(Env.perc(0.003, dur, 1, -6), doneAction: 2);
+    exciter = Impulse.ar(0) + (WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.005)));
+    string = CombL.ar(exciter, 0.05, currentFreq.reciprocal, dur * resonance);
+    string = string + (CombL.ar(exciter, 0.025, (currentFreq * 0.5).reciprocal, dur * 0.7) * 0.3);
+    formant1 = BPF.ar(string, 250, 0.3) * 2;
+    formant2 = BPF.ar(string, 800, 0.25) * 2.5;
+    formant3 = BPF.ar(string, 3500, 0.2) * 2;
+    sig = string + formant1 + formant2 + formant3;
+    sig = LPF.ar(sig, currentFreq * (3 + (brightness * 10)));
+    sig = (sig * 1.2).tanh * 0.8;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\kotoTremolo, {
+    |out = 0, freq = 440, amp = 0.25, dur = 1.0, pan = 0,
+     rate = 8, brightness = 0.7|
+    var env, trigger, exciter, string, sig;
+    var formant1, formant2, formant3;
+    env = EnvGen.kr(Env.linen(0.02, dur * 0.85, dur * 0.13), doneAction: 2);
+    trigger = Impulse.ar(rate);
+    exciter = trigger + (WhiteNoise.ar * EnvGen.ar(Env.perc(0.001, 0.003), trigger));
+    string = CombL.ar(exciter, 0.05, freq.reciprocal, 0.3);
+    string = string + (CombL.ar(exciter, 0.025, (freq * 0.5).reciprocal, 0.2) * 0.3);
+    formant1 = BPF.ar(string, 250, 0.3) * 2;
+    formant2 = BPF.ar(string, 800, 0.25) * 2.5;
+    formant3 = BPF.ar(string, 3500, 0.2) * 1.5;
+    sig = string + formant1 + formant2 + formant3;
+    sig = LPF.ar(sig, freq * (3 + (brightness * 8)));
+    sig = (sig * 1.1).tanh * 0.7;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\kotoSweep, {
+    |out = 0, baseFreq = 220, amp = 0.3, dur = 0.5, pan = 0,
+     spread = 0.05, direction = 1|
+    var env, sigs;
+    env = EnvGen.kr(Env.perc(0.01, dur, 1, -4), doneAction: 2);
+    sigs = Array.fill(5, { |i|
+        var delay = i * spread * (1 - (direction * 2).abs.sign + direction.sign);
+        var freq = baseFreq * (2 ** ((i * 2) / 12));
+        var exciter, string;
+        exciter = DelayN.ar(
+            Impulse.ar(0) + (WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.004))),
+            0.5,
+            delay.abs
+        );
+        string = CombL.ar(exciter, 0.05, freq.reciprocal, dur * 0.8);
+        string = BPF.ar(string, 800, 0.4) * 2 + string;
+        LPF.ar(string, freq * 6) * (1 - (i * 0.1))
+    }).sum;
+    sigs = (sigs * 1.2).tanh * 0.6;
+    Out.ar(out, Pan2.ar(sigs * env * amp, pan));
+}).writeDefFile(outputDir);
+
+"[Japanese] Compiling shakuhachi...".postln;
+
+SynthDef(\shakuhachi, {
+    |out = 0, freq = 440, amp = 0.3, dur = 1.0, pan = 0,
+     attack = 0.15, release = 0.3,
+     breathiness = 0.4, brightness = 0.5,
+     vibRate = 4.5, vibDepth = 0.008, vibDelay = 0.3|
+    var env, vibEnv, vibrato, breath, tone, sig;
+    var breathEnv, formant1, formant2;
+    env = EnvGen.kr(
+        Env([0, 0.3, 1, 0.8, 0],
+            [attack * 0.3, attack * 0.7, dur - attack - release, release],
+            [2, 1, -2, -4]),
+        doneAction: 2
+    );
+    breathEnv = EnvGen.kr(
+        Env([0.8, 1, 0.5, 0.3], [attack, dur * 0.3, dur * 0.5], [2, -2, -3])
+    );
+    vibEnv = EnvGen.kr(Env([0, 0, 1], [vibDelay, 0.15]));
+    vibrato = SinOsc.kr(vibRate + LFNoise1.kr(0.3).range(-0.2, 0.2))
+              * freq * vibDepth * vibEnv;
+    breath = BPF.ar(WhiteNoise.ar, freq * 2, 0.5) * breathiness * breathEnv;
+    tone = SinOsc.ar(freq + vibrato)
+         + (SinOsc.ar((freq + vibrato) * 2) * 0.3)
+         + (SinOsc.ar((freq + vibrato) * 3) * 0.15)
+         + (SinOsc.ar((freq + vibrato) * 4) * 0.05);
+    formant1 = BPF.ar(tone + breath, 800, 0.4) * 2;
+    formant2 = BPF.ar(tone + breath, 2200, 0.3) * 1.5;
+    sig = tone + breath + formant1 + formant2;
+    sig = LPF.ar(sig, freq * (2 + (brightness * 6)));
+    sig = (sig * 0.8).tanh;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\shakuhachiMeri, {
+    |out = 0, freq = 440, amp = 0.3, dur = 1.0, pan = 0,
+     meriDepth = 1.0, meriTime = 0.25,
+     attack = 0.12, release = 0.25,
+     breathiness = 0.5|
+    var env, meriEnv, currentFreq, breath, tone, sig;
+    var brightnessEnv, formant1, formant2;
+    meriEnv = EnvGen.kr(
+        Env([0, meriDepth.neg, meriDepth.neg * 0.8],
+            [meriTime * 0.4, meriTime * 0.6],
+            \sine)
+    );
+    currentFreq = freq * (2 ** (meriEnv / 12));
+    brightnessEnv = EnvGen.kr(
+        Env([1, 0.5, 0.6], [meriTime * 0.5, dur - meriTime], \sine)
+    );
+    env = EnvGen.kr(
+        Env([0, 1, 0.7, 0], [attack, dur - attack - release, release], [2, -2, -4]),
+        doneAction: 2
+    );
+    breath = BPF.ar(WhiteNoise.ar, currentFreq * 1.5, 0.6) * breathiness;
+    tone = SinOsc.ar(currentFreq)
+         + (SinOsc.ar(currentFreq * 2) * 0.25)
+         + (SinOsc.ar(currentFreq * 3) * 0.1);
+    formant1 = BPF.ar(tone + breath, 700, 0.5) * 2;
+    formant2 = BPF.ar(tone + breath, 1800, 0.4) * 1.2;
+    sig = tone + breath + formant1 + formant2;
+    sig = LPF.ar(sig, currentFreq * (1.5 + (brightnessEnv * 4)));
+    sig = (sig * 0.8).tanh;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\shakuhachiKari, {
+    |out = 0, freq = 440, amp = 0.3, dur = 0.8, pan = 0,
+     kariDepth = 0.5, kariTime = 0.15,
+     attack = 0.08, release = 0.2,
+     breathiness = 0.35|
+    var env, kariEnv, currentFreq, breath, tone, sig;
+    var brightnessEnv, formant1, formant2;
+    kariEnv = EnvGen.kr(
+        Env([0, kariDepth, kariDepth * 0.7], [kariTime * 0.4, kariTime * 0.6], \sine)
+    );
+    currentFreq = freq * (2 ** (kariEnv / 12));
+    brightnessEnv = EnvGen.kr(
+        Env([1, 1.3, 1.1], [kariTime * 0.5, dur - kariTime], \sine)
+    );
+    env = EnvGen.kr(
+        Env([0, 1, 0.7, 0], [attack, dur - attack - release, release], [2, -2, -4]),
+        doneAction: 2
+    );
+    breath = BPF.ar(WhiteNoise.ar, currentFreq * 2.2, 0.6) * breathiness;
+    tone = SinOsc.ar(currentFreq)
+         + (SinOsc.ar(currentFreq * 2) * 0.3)
+         + (SinOsc.ar(currentFreq * 3) * 0.12);
+    formant1 = BPF.ar(tone + breath, 900, 0.4) * 2;
+    formant2 = BPF.ar(tone + breath, 2400, 0.3) * 1.5;
+    sig = tone + breath + formant1 + formant2;
+    sig = LPF.ar(sig, currentFreq * (2 + (brightnessEnv * 5)));
+    sig = (sig * 0.85).tanh;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\shakuhachiMuraiki, {
+    |out = 0, freq = 440, amp = 0.4, dur = 0.3, pan = 0|
+    var env, breathEnv, breath, tone, sig;
+    env = EnvGen.kr(Env.perc(0.01, dur, 1, -6), doneAction: 2);
+    breathEnv = EnvGen.kr(Env.perc(0.005, dur * 0.5, 1, -8));
+    breath = BPF.ar(WhiteNoise.ar, freq * 3, 0.8) * breathEnv;
+    tone = SinOsc.ar(freq)
+         + (SinOsc.ar(freq * 2) * 0.4)
+         + (SinOsc.ar(freq * 3) * 0.25);
+    sig = (tone * 0.6) + (breath * 0.8);
+    sig = HPF.ar(sig, 200);
+    sig = (sig * 1.5).clip2(0.8);
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+"[Japanese] Compiling shamisen...".postln;
+
+SynthDef(\shamisen, {
+    |out = 0, freq = 220, amp = 0.35, dur = 1.0, pan = 0,
+     sawari = 0.5, brightness = 0.6,
+     attack = 0.004, decay = 0.08|
+    var env, string, buzz, sig;
+    var exciter, sawariFreq, formant1, formant2;
+    var skinHit, bachiNoise;
+    env = EnvGen.kr(Env.perc(attack, dur, 1, -8), doneAction: 2);
+    bachiNoise = WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.008));
+    skinHit = BPF.ar(bachiNoise, 400, 0.5) * 3
+            + BPF.ar(bachiNoise, 1200, 0.3) * 2;
+    exciter = Impulse.ar(0) + (skinHit * 0.5);
+    string = CombL.ar(exciter, 0.05, freq.reciprocal, dur * 0.8);
+    string = string + (CombL.ar(exciter, 0.025, (freq * 2).reciprocal, dur * 0.5) * 0.25);
+    sawariFreq = freq * LFNoise2.kr(50).range(0.99, 1.01);
+    buzz = Ringz.ar(
+        exciter,
+        [sawariFreq, sawariFreq * 2, sawariFreq * 3],
+        [0.3, 0.2, 0.1]
+    ).sum * 0.3;
+    buzz = buzz + BPF.ar(
+        string * LFNoise1.kr(80).range(0.5, 1),
+        freq * 1.5,
+        0.8
+    ) * 0.4;
+    sig = string + (buzz * sawari);
+    formant1 = BPF.ar(sig, 350, 0.35) * 2;
+    formant2 = BPF.ar(sig, 1800, 0.25) * 1.8;
+    sig = sig + formant1 + formant2;
+    sig = LPF.ar(sig, freq * (2 + (brightness * 8)));
+    sig = (sig * 1.4).tanh * 0.7;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\shamisenDrone, {
+    |out = 0, freq = 146.83, amp = 0.3, dur = 3.0, pan = 0,
+     sawari = 0.8, decay = 0.5|
+    var env, exciter, string, buzz, sig;
+    var sawariMod, formant1, formant2;
+    env = EnvGen.kr(
+        Env([0, 1, 0.6, 0.3, 0], [0.005, 0.1, dur * 0.6, dur * 0.3], [-4, -2, -3, -4]),
+        doneAction: 2
+    );
+    exciter = Impulse.ar(0) + (WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.006)));
+    string = CombL.ar(exciter, 0.05, freq.reciprocal, dur * decay);
+    string = string + (CombL.ar(exciter, 0.025, (freq * 2).reciprocal, dur * 0.4) * 0.2);
+    sawariMod = LFNoise2.kr(30).range(0.98, 1.02);
+    buzz = Ringz.ar(exciter, freq * sawariMod * [1, 2, 3, 4], [0.5, 0.3, 0.2, 0.1]).sum * 0.4;
+    buzz = buzz + HPF.ar(
+        string * LFNoise1.kr(60).range(0.4, 1) * EnvGen.kr(Env.perc(0.01, dur * 0.5)),
+        freq * 2
+    ) * 0.3;
+    sig = string + (buzz * sawari);
+    formant1 = BPF.ar(sig, 350, 0.4) * 2.5;
+    formant2 = BPF.ar(sig, 1800, 0.3) * 2;
+    sig = sig + formant1 + formant2;
+    sig = LPF.ar(sig, freq * 8);
+    sig = (sig * 1.3).tanh * 0.7;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\shamisenSlide, {
+    |out = 0, startFreq = 220, endFreq = 247, amp = 0.35, dur = 0.8, pan = 0,
+     slideTime = 0.12, sawari = 0.4, brightness = 0.6|
+    var env, freqEnv, exciter, string, buzz, sig;
+    var formant1, formant2;
+    freqEnv = EnvGen.kr(
+        Env([startFreq, startFreq, endFreq], [0.01, slideTime], [\lin, 4])
+    );
+    env = EnvGen.kr(Env.perc(0.004, dur, 1, -8), doneAction: 2);
+    exciter = Impulse.ar(0) + (WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.006)));
+    string = CombL.ar(exciter, 0.05, freqEnv.reciprocal, dur * 0.8);
+    buzz = Ringz.ar(exciter, freqEnv * [1, 2, 3], [0.25, 0.15, 0.1]).sum * 0.25;
+    sig = string + (buzz * sawari);
+    formant1 = BPF.ar(sig, 350, 0.35) * 2;
+    formant2 = BPF.ar(sig, 1800, 0.25) * 1.8;
+    sig = sig + formant1 + formant2;
+    sig = LPF.ar(sig, freqEnv * (2 + (brightness * 8)));
+    sig = (sig * 1.4).tanh * 0.7;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\shamisenTsugaru, {
+    |out = 0, freq = 220, amp = 0.4, dur = 1.2, pan = 0,
+     sawari = 0.7, brightness = 0.7|
+    var env, exciter, string, buzz, sig;
+    var skinSlap, formant1, formant2;
+    env = EnvGen.kr(
+        Env([0, 1, 0.5, 0.2, 0], [0.003, 0.05, dur * 0.5, dur * 0.4], [-2, -4, -4, -6]),
+        doneAction: 2
+    );
+    skinSlap = BPF.ar(
+        WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.015)),
+        [300, 600, 1000],
+        0.4
+    ).sum * 2;
+    exciter = Impulse.ar(0) * 1.2 + skinSlap;
+    string = CombL.ar(exciter, 0.05, freq.reciprocal, dur * 0.9);
+    string = string + (CombL.ar(exciter, 0.025, (freq * 2).reciprocal, dur * 0.6) * 0.3);
+    buzz = Ringz.ar(exciter, freq * [1, 2, 3, 4], [0.4, 0.25, 0.15, 0.1]).sum * 0.35;
+    buzz = buzz + HPF.ar(
+        string * LFNoise1.kr(50).range(0.6, 1),
+        freq * 1.5
+    ) * 0.25;
+    sig = string + (buzz * sawari);
+    formant1 = BPF.ar(sig, 400, 0.3) * 2.5;
+    formant2 = BPF.ar(sig, 2200, 0.2) * 2;
+    sig = sig + formant1 + formant2;
+    sig = LPF.ar(sig, freq * (2 + (brightness * 10)));
+    sig = (sig * 1.5).clip2(0.9) * 0.8;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+// ============================================================================
 // Done
 // ============================================================================
 "".postln;
@@ -568,6 +886,7 @@ SynthDef(\csangoGardon, {
 "  [Táncház]   tzViolin, tzViolinLong, tzViolinStaccato, tzViolinGrace, tzViolinSlide, tzBracsa, tzBracsaAccent, tzGardon, tzBass, tzCajonTone, tzFootStomp".postln;
 "  [Széki]     szekViolin, szekGardon".postln;
 "  [Csángó]    csangoTilinko, csangoVoice, csangoGardon".postln;
+"  [Japanese]  koto, kotoOshide, kotoTremolo, kotoSweep, shakuhachi, shakuhachiMeri, shakuhachiKari, shakuhachiMuraiki, shamisen, shamisenDrone, shamisenSlide, shamisenTsugaru".postln;
 "".postln;
-"Total: 41 SynthDefs".postln;
+"Total: 53 SynthDefs".postln;
 )
