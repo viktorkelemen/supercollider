@@ -26,4 +26,22 @@ Artists and experiments that resonated most.
 
 ---
 
+## Venetian Snares
+
+**File:** `idm/venetian_snares.scd`
+
+**Style:** Breakcore, odd meters, classical + amen fusion
+
+**Favorite experiments:**
+- ROSSZ CSILLAG — Bartók-influenced strings over chopped breakbeats at 170 BPM
+
+**What works:**
+- Odd time signatures (7/8, 5/4, 7/4) for asymmetric feel
+- Pitched/tuned drums with `\freq` parameter
+- Hungarian minor scale influence `[C D Eb F# G Ab B]`
+- Retrigger rolls with ascending pitch sweeps
+- Layering classical strings with aggressive breaks
+
+---
+
 <!-- Add more favorites as you discover them -->
