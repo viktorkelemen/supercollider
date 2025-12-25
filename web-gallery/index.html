@@ -349,7 +349,7 @@
                 // Import SuperSonic from the self-hosted bundle
                 const { SuperSonic } = await import('./supersonic/supersonic.js');
                 this.ss = new SuperSonic({
-                    workerBaseURL: './dist/workers/',
+                    workerBaseURL: './supersonic/workers/',
                     wasmBaseURL: './supersonic/wasm/',
                     synthdefBaseURL: './supersonic/synthdefs/'
                 });
@@ -357,10 +357,7 @@
             }
 
             async loadSynthDef(name) {
-                console.log(`Loading SynthDef: ${name}`);
-                // Use loadSynthDefs (plural) which uses synthdefBaseURL
-                const results = await this.ss.loadSynthDefs([name]);
-                console.log(`SynthDef loaded: ${name}`, results);
+                return await this.ss.loadSynthDefs([name]);
             }
 
             at(time, synthDef, params = {}) {
@@ -370,7 +367,6 @@
                     for (const [k, v] of Object.entries(params)) {
                         args.push(k, v);
                     }
-                    console.log(`[${time.toFixed(2)}s] /s_new`, args);
                     this.ss.send('/s_new', ...args);
                 }, time * 1000);
                 this.timers.push(timer);
@@ -422,18 +418,11 @@
             try {
                 player = new Player();
                 await player.init();
-                await player.loadSynthDef('cimbalom');
-                // Also load a built-in synth for testing
-                await player.loadSynthDef('sonic-pi-beep');
 
-                // Log audio context info
-                const ctx = player.ss.audioContext;
-                console.log('AudioContext state:', ctx.state);
-                console.log('AudioContext sampleRate:', ctx.sampleRate);
-                console.log('AudioContext destination:', ctx.destination.channelCount, 'channels');
-                console.log('WorkletNode:', player.ss.workletNode);
-                console.log('WorkletNode connected:', player.ss.workletNode?.numberOfOutputs);
-                console.log('SuperSonic status:', player.ss.getStatus());
+                const result = await player.loadSynthDef('cimbalom');
+                if (!result || result.length === 0) {
+                    throw new Error('Failed to load cimbalom SynthDef');
+                }
 
                 statusEl.className = 'status ready';
                 statusEl.textContent = 'SuperSonic ready';
@@ -441,7 +430,6 @@
             } catch (err) {
                 statusEl.className = 'status error';
                 statusEl.textContent = `Error: ${err.message}`;
-                console.error(err);
             }
         }
 
@@ -455,23 +443,6 @@
             playBtn.textContent = 'Stop';
             playBtn.classList.add('playing');
 
-            // Test raw Web Audio first (bypasses SuperSonic)
-            const ctx = player.ss.audioContext;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            gain.gain.value = 0.3;
-            osc.frequency.value = 440;
-            osc.start();
-            osc.stop(ctx.currentTime + 0.2);
-            console.log('Playing raw Web Audio test tone (440Hz)...');
-
-            // Test with built-in beep
-            console.log('Playing SuperSonic beep...');
-            player.at(0.3, 'sonic-pi-beep', { note: 60, amp: 0.5 });
-
-            // Then play cimbalom arpeggio
             const duration = playCimbalomArpeggio(player);
 
             // Progress bar animation
@@ -499,10 +470,7 @@
         playBtn.addEventListener('click', play);
 
         // Initialize on first user interaction (required for audio context)
-        document.body.addEventListener('click', function initOnClick() {
-            document.body.removeEventListener('click', initOnClick);
-            initAudio();
-        }, { once: true });
+        document.body.addEventListener('click', () => initAudio(), { once: true });
 
         statusEl.textContent = 'Click anywhere to initialize audio...';
     </script>
