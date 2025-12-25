@@ -30,13 +30,27 @@ SynthDef(\masterBus, {
 SynthDef(\combToneFull, {
 	arg out = 0, amp = 0.2, freq = 200, combFreq = 400,
 	    combDecay = 0.1, decay = 0.15, pan = 0,
-	    cutoff = 4000, rq = 0.5, verbMix = 0.1, verbRoom = 0.5;
-	var sig, env, dry, wet;
-	env = EnvGen.kr(Env.perc(0.001, decay, 1, -4), doneAction: 2);
-	sig = WhiteNoise.ar * EnvGen.kr(Env.perc(0.001, 0.01));
+	    cutoff = 4000, rq = 0.5, verbMix = 0.1, verbRoom = 0.5,
+	    attack = 0.001, curve = -4, noiseColor = 0.5, vibRate = 0, vibDepth = 0,
+	    hpf = 20;
+	var sig, env, dry, wet, noise, vibrato;
+
+	// Humanized attack and curve (randomized per instance)
+	env = EnvGen.kr(Env.perc(attack + Rand(0, 0.004), decay, 1, curve + Rand(-1, 1)), doneAction: 2);
+
+	// Noise character: mix of white (0) to pink (1)
+	noise = ((1 - noiseColor) * WhiteNoise.ar) + (noiseColor * PinkNoise.ar);
+	sig = noise * EnvGen.kr(Env.perc(0.001, 0.01 + Rand(0, 0.005)));
 	sig = CombL.ar(sig, 0.05, combFreq.reciprocal, combDecay);
-	sig = sig + (SinOsc.ar(freq) * 0.25);
-	sig = RLPF.ar(sig, cutoff, rq);
+
+	// Pitch instability: subtle vibrato
+	vibrato = SinOsc.kr(vibRate + Rand(-0.5, 0.5), Rand(0, 2pi)) * vibDepth;
+	sig = sig + (SinOsc.ar(freq * (1 + vibrato)) * 0.25);
+
+	// Filter with subtle movement
+	sig = RLPF.ar(sig, cutoff * LFNoise1.kr(0.5).range(0.95, 1.05), rq);
+	sig = HPF.ar(sig, hpf);  // High-pass to thin out at high density
+
 	sig = sig * env * amp;
 	dry = sig;
 	wet = FreeVerb.ar(sig, 1, verbRoom, 0.3);
@@ -59,7 +73,7 @@ SynthDef(\subHit, {
 Routine({
 	var totalDur = 90;
 	var maxInterval = 2.0;
-	var minInterval = 0.1;  // Higher floor = more articulate at bottom
+	var minInterval = 0.14;  // Higher floor = more articulate at bottom
 	var maxDecay = 2.0;
 	var minDecay = 0.012;
 	var maxCombDecay = 2.5;
@@ -124,7 +138,7 @@ Routine({
 
 		// Generate events for this cycle
 		{t < cycleDur}.while({
-			var height, interval, decay, combDecay, cutoff, rq, verbMix, verbRoom;
+			var height, interval, decay, combDecay, cutoff, rq, verbMix, verbRoom, hpf;
 
 			// Height from phase (V shape: 0,1 = top, 0.5 = bottom)
 			height = (1 - (phase * 2)).abs;
@@ -140,6 +154,10 @@ Routine({
 			verbMix = 0.05 + (0.35 * (1 - height));
 			verbRoom = 0.3 + (0.5 * (1 - height));
 
+			// HPF: higher at bottom (thin out dense sections), lower at top (full body)
+			// At bottom (height=0): 400Hz, at top (height=1): 20Hz
+			hpf = 20 + (380 * (1 - height));
+
 			// Accent pattern: every 4th hit at bottom gets louder/brighter
 			// Only applies when height < 0.3 (near bottom)
 			{
@@ -147,26 +165,46 @@ Routine({
 				var accentAmp = if(isAccent, { 1.4 }, { 1.0 });
 				var accentCutoff = if(isAccent, { cutoff * 1.3 }, { cutoff });
 
-				// Schedule all three balls
+				// Schedule all three balls with organic variations
 				balls.do { |ballConfig, bi|
 					var freq = ballConfig[0];
 					var combFreq = ballConfig[1];
 					var pan = ballConfig[2];
 					var ampScale = ballConfig[3];
-					var timeOffset = bi * 0.02;  // Tiny offset for stereo spread
+
+					// Micro-timing: random offset ±10ms
+					var timeOffset = (bi * 0.02) + (0.01.rand2);
+
+					// Parameter drift per hit
+					var ampDrift = 1 + 0.1.rand2;                  // ±10%
+					var decayDrift = decay * (1 + 0.15.rand2);     // ±15%
+					var combDecayDrift = combDecay * (1 + 0.1.rand2);
+
+					// Reverb/space variation
+					var verbMixDrift = verbMix * (1 + 0.2.rand2);  // ±20%
+					var verbRoomDrift = verbRoom * (1 + 0.15.rand2);
+
+					// Noise color and vibrato (vary per ball)
+					var noiseColor = 0.3 + 0.4.rand;  // 0.3-0.7 range
+					var vibRate = 3 + 4.rand;         // 3-7 Hz
+					var vibDepth = 0.002 + 0.004.rand; // Subtle: 0.2-0.6% pitch
 
 					s.sendBundle(currentT + t + timeOffset, [\s_new, \combToneFull, -1, 0, 0,
 						\out, ~masterBus.index,
 						\freq, freq,
-						\combFreq, combFreq,
-						\combDecay, combDecay.min(maxCombDecay),
-						\decay, decay.min(maxDecay),
-						\pan, pan,
+						\combFreq, combFreq * (1 + 0.02.rand2),
+						\combDecay, combDecayDrift.min(maxCombDecay),
+						\decay, decayDrift.min(maxDecay),
+						\pan, pan + 0.1.rand2,  // Slight pan drift
 						\cutoff, accentCutoff.min(12000),
-						\rq, rq,
-						\verbMix, verbMix,
-						\verbRoom, verbRoom,
-						\amp, 0.18 * ampScale * accentAmp
+						\rq, rq * (1 + 0.1.rand2),
+						\hpf, hpf,
+						\verbMix, verbMixDrift.clip(0, 0.8),
+						\verbRoom, verbRoomDrift.clip(0.1, 0.95),
+						\noiseColor, noiseColor,
+						\vibRate, vibRate,
+						\vibDepth, vibDepth,
+						\amp, 0.18 * ampScale * accentAmp * ampDrift
 					]);
 				};
 			}.value;
