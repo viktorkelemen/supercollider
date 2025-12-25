@@ -539,13 +539,15 @@ SynthDef(\csangoVoice, {
 }).writeDefFile(outputDir);
 
 SynthDef(\csangoGardon, {
-    |out = 0, freq = 75, amp = 0.35, dur = 0.12|
-    var env, hit, drone, sig;
+    |out = 0, freq = 90, amp = 0.4, dur = 0.12|
+    var env, hit, drone, overtone, sig;
     env = EnvGen.kr(Env.perc(0.002, dur, 1, -7), doneAction: 2);
-    hit = LPF.ar(WhiteNoise.ar, 350) * EnvGen.kr(Env.perc(0.001, 0.03)) * 0.45;
+    hit = LPF.ar(WhiteNoise.ar, 450) * EnvGen.kr(Env.perc(0.001, 0.03)) * 0.45;
+    hit = hit + BPF.ar(WhiteNoise.ar, 1200, 0.4) * EnvGen.kr(Env.perc(0.001, 0.02)) * 0.25;
     drone = SinOsc.ar(freq) * 0.5 + Saw.ar(freq) * 0.15;
-    drone = LPF.ar(drone, 280);
-    sig = hit + drone;
+    overtone = SinOsc.ar(freq * 2) * 0.12;
+    drone = LPF.ar(drone, 320);
+    sig = hit + drone + overtone;
     Out.ar(out, Pan2.ar(sig * env * amp, 0));
 }).writeDefFile(outputDir);
 
