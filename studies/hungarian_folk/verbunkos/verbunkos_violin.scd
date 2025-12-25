@@ -481,6 +481,8 @@ s.sync;
 
 Routine({
     var drone;
+    var melody = [0, 2, 3, 4, 3, 2, 0, -1, 0];
+    var durs = [0.5, 0.3, 0.3, 0.6, 0.3, 0.3, 0.4, 0.2, 0.8];
 
     "Violin melody with drone:".postln;
 
@@ -490,8 +492,6 @@ Routine({
     0.5.wait;
 
     // Melody
-    var melody = [0, 2, 3, 4, 3, 2, 0, -1, 0];
-    var durs = [0.5, 0.3, 0.3, 0.6, 0.3, 0.3, 0.4, 0.2, 0.8];
 
     melody.do { |deg, i|
         var hasSlide = [4, 5].includes(i);
