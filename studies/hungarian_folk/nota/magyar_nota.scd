@@ -261,12 +261,15 @@ var melodyRoot = 60;
 var scale = ~hungarianMinor;
 
 Routine({
+    var slowMelody = [4, 6, 4, 3, 2, 0];
+    var slowDurs = [1.0, 0.6, 0.8, 0.5, 0.6, 1.5];
+    var fastTempo = 0.18;
+    var fastMelody = [0, 2, 4, 4, 3, 2, 0, 0, 2, 4, 3, 2, 0, -1, 0, 0];
+
     "Dramatic nóta contrast:".postln;
 
     // SLOW, expressive section
     "  Slow, expressive:".postln;
-    var slowMelody = [4, 6, 4, 3, 2, 0];
-    var slowDurs = [1.0, 0.6, 0.8, 0.5, 0.6, 1.5];
 
     slowMelody.do { |deg, i|
         if(i == 1) {
@@ -302,8 +305,6 @@ Routine({
 
     // FAST, dance section
     "  Fast, dance:".postln;
-    var fastTempo = 0.18;
-    var fastMelody = [0, 2, 4, 4, 3, 2, 0, 0, 2, 4, 3, 2, 0, -1, 0, 0];
 
     fastMelody.do { |deg, i|
         Synth(\notaViolin, [
@@ -511,12 +512,12 @@ var melodyRoot = 60;
 var scale = ~hungarianMinor;
 
 Routine({
-    "Romantic swell:".postln;
-
     // Building phrase with crescendo
     var melody = [0, 2, 4, 6, 7, 6, 4, 2, 0];
     var durs = [0.4, 0.3, 0.4, 0.5, 1.2, 0.5, 0.4, 0.4, 1.5];
     var dynamics = [0.28, 0.32, 0.36, 0.42, 0.5, 0.45, 0.38, 0.32, 0.35];
+
+    "Romantic swell:".postln;
 
     // Cimbalom tremolo underneath
     Synth(\notaCimbTrem, [

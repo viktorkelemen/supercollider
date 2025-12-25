@@ -427,6 +427,8 @@ var melodyRoot = 60;
 var scale = ~hungarianMinor;
 
 Routine({
+    var melody = [0, 2, 4, 6, 4, 3, 2, 0, 4, 3, 2, 0];
+
     "=== Full Legényes Phrase ===".postln;
 
     // Opening: Band sets the groove
@@ -458,7 +460,6 @@ Routine({
 
     // Virtuosic passage
     "Virtuosic passage:".postln;
-    var melody = [0, 2, 4, 6, 4, 3, 2, 0, 4, 3, 2, 0];
     melody.do { |deg, i|
         Synth(\legenyViolin, [
             \freq, ~scaleToFreq.(melodyRoot, scale, deg),

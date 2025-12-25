@@ -286,6 +286,8 @@ var scale = ~pentatonic;
 
 Routine({
     var drone;
+    var melody = [4, 3, 4, 2, 1, 0, -1, 0];
+    var durs = [1.2, 0.4, 0.9, 0.7, 0.5, 0.6, 0.3, 2.0];
 
     "Hallgató with drone:".postln;
 
@@ -295,8 +297,6 @@ Routine({
     1.0.wait;
 
     // Melody
-    var melody = [4, 3, 4, 2, 1, 0, -1, 0];
-    var durs = [1.2, 0.4, 0.9, 0.7, 0.5, 0.6, 0.3, 2.0];
 
     melody.do { |deg, i|
         Synth(\hallgatoViolin, [
@@ -380,6 +380,7 @@ Routine({
 var root = 60;
 var scale = ~pentatonic;
 var melody = [4, 3, 2, 1, 0];
+var durs;
 
 Routine({
     // Tempo giusto (strict timing) - NOT authentic hallgató
@@ -398,7 +399,7 @@ Routine({
 
     // Rubato (authentic hallgató)
     "Rubato (authentic):".postln;
-    var durs = [0.9, 0.35, 0.7, 0.4, 1.4];
+    durs = [0.9, 0.35, 0.7, 0.4, 1.4];
     melody.do { |deg, i|
         Synth(\hallgatoViolin, [
             \freq, ~scaleToFreq.(root, scale, deg),
@@ -419,8 +420,10 @@ Routine({
 var root = 60;
 
 Routine({
-    "Pentatonic (archaic, old-style):".postln;
     var pent = ~pentatonic;
+    var hung = ~hungarianMinor;
+
+    "Pentatonic (archaic, old-style):".postln;
     [4, 3, 2, 1, 0].do { |deg, i|
         Synth(\hallgatoViolin, [
             \freq, ~scaleToFreq.(root, pent, deg),
@@ -433,7 +436,6 @@ Routine({
     1.5.wait;
 
     "Hungarian minor (newer influence):".postln;
-    var hung = ~hungarianMinor;
     [4, 3, 2, 1, 0].do { |deg, i|
         Synth(\hallgatoViolin, [
             \freq, ~scaleToFreq.(root, hung, deg),
