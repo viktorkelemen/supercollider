@@ -199,6 +199,15 @@ SynthDef(\dudaDrone, {
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).writeDefFile(outputDir);
 
+SynthDef(\dudaDeepDrone, {
+    |out = 0, freq = 55, amp = 0.22, dur = 3, pan = 0|
+    var env = EnvGen.kr(Env.linen(0.4, dur - 0.7, 0.3), doneAction: 2);
+    var sig = SinOsc.ar(freq) * 0.7 + Saw.ar(freq) * 0.3;
+    sig = LPF.ar(sig, 400);
+    sig = (sig * 1.5).tanh * 0.6;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
 SynthDef(\dudaChanter, {
     |out = 0, freq = 440, amp = 0.28, dur = 0.4, pan = 0.1,
      buzz = 0.5, nasal = 0.6, vibAmt = 0.0|
@@ -221,6 +230,46 @@ SynthDef(\dudaChanterLong, {
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).writeDefFile(outputDir);
 
+SynthDef(\dudaChanterStaccato, {
+    |out = 0, freq = 440, amp = 0.3, dur = 0.15, pan = 0.1, buzz = 0.6|
+    var env = EnvGen.kr(Env.perc(0.005, dur, 1, -6), doneAction: 2);
+    var sig = Saw.ar(freq) * (0.8 + buzz) + Pulse.ar(freq * 2, 0.5) * 0.35;
+    sig = BPF.ar(sig, 650, 0.35) * 2.5 + BPF.ar(sig, 1900, 0.25) * 0.7 + sig * 0.25;
+    sig = (sig * 1.8).tanh * 0.55;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\dudaCut, {
+    |out = 0, freq = 440, amp = 0.18, dur = 0.05, pan = 0.1|
+    var env = EnvGen.kr(Env.perc(0.002, dur, 1, -8), doneAction: 2);
+    var sig = Pulse.ar(freq * 1.01, 0.5) + HPF.ar(WhiteNoise.ar, 2000) * 0.3;
+    sig = LPF.ar(sig, 3000);
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\dudaDoubleCut, {
+    |out = 0, freq = 440, amp = 0.16, pan = 0.1|
+    var env = EnvGen.kr(
+        Env([0, 1, 0, 1, 0], [0.002, 0.03, 0.01, 0.03], [-8, -8, -8, -8]),
+        doneAction: 2
+    );
+    var sig = Pulse.ar(freq * 1.02, 0.5) * env;
+    sig = sig + HPF.ar(WhiteNoise.ar, 2200) * 0.2 * env;
+    sig = LPF.ar(sig, 3200);
+    Out.ar(out, Pan2.ar(sig * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\dudaTripletCut, {
+    |out = 0, freq = 440, amp = 0.14, pan = 0.1|
+    var env = EnvGen.kr(
+        Env([0, 1, 0, 1, 0, 1, 0], [0.002, 0.03, 0.01, 0.03, 0.01, 0.03], [-8, -8, -8, -8, -8, -8]),
+        doneAction: 2
+    );
+    var sig = Pulse.ar(freq * 1.01, 0.5) * env;
+    sig = LPF.ar(sig, 3500);
+    Out.ar(out, Pan2.ar(sig * amp, pan));
+}).writeDefFile(outputDir);
+
 SynthDef(\dudaStomp, {
     |out = 0, freq = 70, amp = 0.5|
     var env = EnvGen.kr(Env.perc(0.005, 0.18, 1, -6), doneAction: 2);
@@ -234,6 +283,13 @@ SynthDef(\dudaHeel, {
     var env = EnvGen.kr(Env.perc(0.001, 0.04), doneAction: 2);
     var sig = HPF.ar(WhiteNoise.ar, freq) * 0.6 + BPF.ar(WhiteNoise.ar, freq * 1.5, 0.3) * 0.4;
     Out.ar(out, Pan2.ar(sig * env * amp, 0));
+}).writeDefFile(outputDir);
+
+SynthDef(\dudaBootSlap, {
+    |out = 0, amp = 0.2, pan = 0|
+    var env = EnvGen.kr(Env.perc(0.002, 0.08, 1, -8), doneAction: 2);
+    var sig = LPF.ar(WhiteNoise.ar, 600) + HPF.ar(WhiteNoise.ar, 2000) * 0.3;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).writeDefFile(outputDir);
 
 // ============================================================================
@@ -321,6 +377,47 @@ SynthDef(\tzViolin, {
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).writeDefFile(outputDir);
 
+SynthDef(\tzViolinLong, {
+    |out = 0, freq = 440, amp = 0.3, dur = 1.0, pan = 0, vibRate = 5.5, vibDepth = 0.015|
+    var env = EnvGen.kr(Env.linen(0.03, dur - 0.15, 0.12, 1, -3), doneAction: 2);
+    var vibrato = SinOsc.kr(vibRate) * freq * vibDepth;
+    var sig = LFSaw.ar(freq + vibrato);
+    sig = BPF.ar(sig, 520, 0.33) * 2.1 + BPF.ar(sig, 2400, 0.22) * 1.5 + sig * 0.38;
+    sig = LPF.ar(sig, freq * 5.5);
+    sig = (sig * 1.15).tanh * 0.78;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\tzViolinStaccato, {
+    |out = 0, freq = 440, amp = 0.34, dur = 0.12, pan = 0|
+    var env = EnvGen.kr(Env.perc(0.008, dur, 1, -6), doneAction: 2);
+    var sig = LFSaw.ar(freq);
+    sig = BPF.ar(sig, 550, 0.38) * 2.3 + BPF.ar(sig, 2600, 0.2) * 1.3 + sig * 0.35;
+    sig = LPF.ar(sig, freq * 5);
+    sig = (sig * 1.3).tanh * 0.75;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\tzViolinGrace, {
+    |out = 0, freq = 440, amp = 0.2, dur = 0.05, pan = 0|
+    var env = EnvGen.kr(Env.perc(0.003, dur, 1, -8), doneAction: 2);
+    var sig = LFSaw.ar(freq * 1.01);
+    sig = BPF.ar(sig, 600, 0.4) * 2 + sig * 0.3;
+    sig = LPF.ar(sig, 4000);
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\tzViolinSlide, {
+    |out = 0, freqStart = 440, freqEnd = 550, amp = 0.28, dur = 0.3, pan = 0|
+    var env = EnvGen.kr(Env.perc(0.02, dur, 1, -4), doneAction: 2);
+    var freqEnv = EnvGen.kr(Env([freqStart, freqEnd], [dur], [3]));
+    var vibrato = SinOsc.kr(5) * freqEnv * 0.01;
+    var sig = LFSaw.ar(freqEnv + vibrato);
+    sig = BPF.ar(sig, 500, 0.35) * 2 + BPF.ar(sig, 2500, 0.2) * 1.4 + sig * 0.4;
+    sig = (sig * 1.2).tanh * 0.8;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
 SynthDef(\tzBracsa, {
     |out = 0, freq = 220, amp = 0.22, dur = 0.07, pan = 0.2|
     var env = EnvGen.kr(Env.perc(0.002, dur, 1, -8), doneAction: 2);
@@ -329,6 +426,22 @@ SynthDef(\tzBracsa, {
     sig = HPF.ar(sig, 200);
     sig = LPF.ar(sig, 2200);
     sig = (sig * 2).tanh * 0.5;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\tzBracsaAccent, {
+    |out = 0, freq = 200, amp = 0.32, pan = 0.2|
+    var env = EnvGen.kr(Env.perc(0.002, 0.1, 1, -7), doneAction: 2);
+    var chord = [
+        LFSaw.ar(freq * [1, 1.002]),
+        LFSaw.ar(freq * 1.5 * [1, 1.002]),
+        LFSaw.ar(freq * 2.0 * [1, 1.001])
+    ].sum;
+    var scratch = HPF.ar(WhiteNoise.ar, 1400) * EnvGen.kr(Env.perc(0.001, 0.02)) * 0.35;
+    var sig = chord + scratch;
+    sig = BPF.ar(sig, 400, 0.5) * 2.2 + sig * 0.45;
+    sig = LPF.ar(sig, 2500);
+    sig = (sig * 1.5).tanh * 0.7;
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).writeDefFile(outputDir);
 
@@ -349,6 +462,21 @@ SynthDef(\tzBass, {
     var sig = SinOsc.ar(freq) * 0.6 + LFTri.ar(freq) * 0.3 + SinOsc.ar(freq * 2) * 0.1;
     sig = LPF.ar(sig, 350);
     Out.ar(out, Pan2.ar(sig * env * amp, 0));
+}).writeDefFile(outputDir);
+
+SynthDef(\tzCajonTone, {
+    |out = 0, freq = 80, amp = 0.28, pan = 0|
+    var env = EnvGen.kr(Env.perc(0.002, 0.15, 1, -6), doneAction: 2);
+    var low = SinOsc.ar(freq) * 0.6 + LPF.ar(WhiteNoise.ar, 150) * 0.4;
+    var sig = low * env;
+    Out.ar(out, Pan2.ar(sig * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\tzFootStomp, {
+    |out = 0, amp = 0.2, pan = 0|
+    var env = EnvGen.kr(Env.perc(0.002, 0.1, 1, -7), doneAction: 2);
+    var sig = SinOsc.ar(60) * 0.6 + LPF.ar(WhiteNoise.ar, 180) * 0.4;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).writeDefFile(outputDir);
 
 // ============================================================================
@@ -431,13 +559,13 @@ SynthDef(\csangoGardon, {
 "Compiled SynthDefs:".postln;
 "  [Verbunkos] cimbalom, cimbalomTremolo, verbViolin, verbViolinSlide, bracsa, bracsaAccent".postln;
 "  [Shepherd]  shepFurulya, shepTilinko, shepLongFlute".postln;
-"  [Duda]      dudaDrone, dudaChanter, dudaChanterLong, dudaStomp, dudaHeel".postln;
+"  [Duda]      dudaDrone, dudaDeepDrone, dudaChanter, dudaChanterLong, dudaChanterStaccato, dudaCut, dudaDoubleCut, dudaTripletCut, dudaStomp, dudaHeel, dudaBootSlap".postln;
 "  [Csárdás]   csardViolin, csardBass".postln;
 "  [Hallgató]  hallgatoViolin".postln;
 "  [Legényes]  legenyViolin, legenyGardon".postln;
-"  [Táncház]   tzViolin, tzBracsa, tzGardon, tzBass".postln;
+"  [Táncház]   tzViolin, tzViolinLong, tzViolinStaccato, tzViolinGrace, tzViolinSlide, tzBracsa, tzBracsaAccent, tzGardon, tzBass, tzCajonTone, tzFootStomp".postln;
 "  [Széki]     szekViolin, szekGardon".postln;
 "  [Csángó]    csangoTilinko, csangoVoice, csangoGardon".postln;
 "".postln;
-"Total: 28 SynthDefs".postln;
+"Total: 41 SynthDefs".postln;
 )

@@ -318,6 +318,8 @@
                 <tr data-experiment="dudaDrone"><td class="style-cell">Duda</td><td class="name-cell">Drone</td><td class="desc-cell">Continuous bass with rich harmonics</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="dudaChanter"><td class="style-cell">Duda</td><td class="name-cell">Chanter</td><td class="desc-cell">Melodic figure with grace notes</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="dudaDance"><td class="style-cell">Duda</td><td class="name-cell">Dance Tune</td><td class="desc-cell">Drone + melody combined</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="dudaCuts"><td class="style-cell">Duda</td><td class="name-cell">Cut Ornaments</td><td class="desc-cell">Single, double, and triplet cuts</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="dudaLamentu"><td class="style-cell">Duda</td><td class="name-cell">Lassu Lament</td><td class="desc-cell">Slow, sustained melody with drones</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="csardViolin"><td class="style-cell">Csárdás</td><td class="name-cell">Violin</td><td class="desc-cell">Fiery accelerating melody</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="csardBass"><td class="style-cell">Csárdás</td><td class="name-cell">Bőgő</td><td class="desc-cell">Percussive slapped bass</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="hallgatoViolin"><td class="style-cell">Hallgató</td><td class="name-cell">Violin</td><td class="desc-cell">Lamenting rubato melody</td><td><button class="play-btn" disabled>Play</button></td></tr>
@@ -328,6 +330,7 @@
                 <tr data-experiment="tzGardon"><td class="style-cell">Táncház</td><td class="name-cell">Gardon</td><td class="desc-cell">Percussive cello rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="tzBass"><td class="style-cell">Táncház</td><td class="name-cell">Double Bass</td><td class="desc-cell">Walking bass with slaps</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="tzEnsemble"><td class="style-cell">Táncház</td><td class="name-cell">Full Ensemble</td><td class="desc-cell">Complete band together</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="tzFriss"><td class="style-cell">Táncház</td><td class="name-cell">Friss</td><td class="desc-cell">Fast dance with accents and stomps</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="szekViolin"><td class="style-cell">Széki</td><td class="name-cell">Violin</td><td class="desc-cell">Modal Transylvanian melody</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="szekGardon"><td class="style-cell">Széki</td><td class="name-cell">Gardon</td><td class="desc-cell">Driving percussive rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="csangoTilinko"><td class="style-cell">Csángó</td><td class="name-cell">Tilinkó</td><td class="desc-cell">Pentatonic overtone flute</td><td><button class="play-btn" disabled>Play</button></td></tr>
@@ -596,6 +599,54 @@
                     });
                 }
             },
+            dudaCuts: {
+                synthDefs: ['dudaDrone', 'dudaChanter', 'dudaCut', 'dudaDoubleCut', 'dudaTripletCut'],
+                duration: 6,
+                play: (p) => {
+                    p.at(0, 'dudaDrone', { freq: midiToFreq(43), dur: 5.5, amp: 0.24 });
+                    const melody = [0, 1, 4, 5, 4, 3, 2, 0];
+                    let t = 0.2;
+                    melody.forEach((deg, i) => {
+                        const cutFreq = scaleToFreq(55, LYDIAN_DOMINANT, deg + 1);
+                        if (i === 2) {
+                            p.at(t - 0.05, 'dudaDoubleCut', { freq: cutFreq, amp: 0.14 });
+                        } else if (i === 4) {
+                            p.at(t - 0.05, 'dudaTripletCut', { freq: cutFreq, amp: 0.12 });
+                        } else if (i % 2 === 1) {
+                            p.at(t - 0.04, 'dudaCut', { freq: cutFreq, amp: 0.12 });
+                        }
+                        p.at(t, 'dudaChanter', {
+                            freq: scaleToFreq(55, LYDIAN_DOMINANT, deg),
+                            dur: 0.28, amp: 0.24
+                        });
+                        t += 0.35;
+                    });
+                }
+            },
+            dudaLamentu: {
+                synthDefs: ['dudaDeepDrone', 'dudaDrone', 'dudaChanterLong', 'dudaCut'],
+                duration: 7,
+                play: (p) => {
+                    p.at(0, 'dudaDeepDrone', { freq: midiToFreq(31), dur: 6.5, amp: 0.2 });
+                    p.at(0, 'dudaDrone', { freq: midiToFreq(43), dur: 6.5, amp: 0.22 });
+                    const melody = [0, 2, 3, 6, 5, 3, 2, 0, -1, 0];
+                    const durs = [0.9, 0.6, 0.8, 1.0, 0.7, 0.6, 0.7, 0.8, 0.7, 1.1];
+                    let t = 0.3;
+                    melody.forEach((deg, i) => {
+                        if (i === 2 || i === 6) {
+                            p.at(t - 0.05, 'dudaCut', {
+                                freq: scaleToFreq(55, HUNGARIAN_MINOR, deg + 1),
+                                amp: 0.1
+                            });
+                        }
+                        p.at(t, 'dudaChanterLong', {
+                            freq: scaleToFreq(55, HUNGARIAN_MINOR, deg),
+                            dur: durs[i] * 0.85, amp: 0.24, vibAmt: 0.01
+                        });
+                        t += durs[i];
+                    });
+                }
+            },
 
             // Csárdás
             csardViolin: {
@@ -754,6 +805,34 @@
                             p.at(beat, 'tzBass', { freq: midiToFreq(38), dur: 0.15, amp: 0.2 });
                         }
                     }
+                }
+            },
+            tzFriss: {
+                synthDefs: ['tzViolinStaccato', 'tzBracsaAccent', 'tzGardon', 'tzBass', 'tzCajonTone', 'tzFootStomp'],
+                duration: 6,
+                play: (p) => {
+                    const melody = [0, 2, 4, 4, 3, 2, 0, -1, 0, 2, 4, 6, 5, 3, 2, 0];
+                    let t = 0;
+                    const tempo = 0.18;
+                    melody.forEach((deg, i) => {
+                        p.at(t, 'tzViolinStaccato', {
+                            freq: scaleToFreq(62, HUNGARIAN_MINOR, deg),
+                            dur: tempo * 0.8, amp: 0.3
+                        });
+                        if (i % 2 === 0) {
+                            p.at(t, 'tzGardon', { freq: midiToFreq(36), dur: 0.1, amp: 0.32 });
+                        } else {
+                            p.at(t, 'tzBracsaAccent', { freq: midiToFreq(50), amp: 0.26 });
+                        }
+                        if (i % 4 === 0) {
+                            p.at(t, 'tzBass', { freq: midiToFreq(38), dur: 0.18, amp: 0.24 });
+                            p.at(t, 'tzFootStomp', { amp: 0.14 });
+                        }
+                        if (i % 4 === 2) {
+                            p.at(t, 'tzCajonTone', { amp: 0.2 });
+                        }
+                        t += tempo;
+                    });
                 }
             },
 
