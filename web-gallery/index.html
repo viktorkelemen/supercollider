@@ -336,6 +336,9 @@
                 <tr data-experiment="csangoTilinko"><td class="style-cell">Csángó</td><td class="name-cell">Tilinkó</td><td class="desc-cell">Pentatonic overtone flute</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="csangoVoice"><td class="style-cell">Csángó</td><td class="name-cell">Voice</td><td class="desc-cell">Ancient vocal ornamentation</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="csangoGardon"><td class="style-cell">Csángó</td><td class="name-cell">Gardon</td><td class="desc-cell">Archaic Moldavian rhythm</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="notaSentimental"><td class="style-cell">Magyar Nóta</td><td class="name-cell">Sentimental Violin</td><td class="desc-cell">Romantic prímás melody with wide vibrato</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="notaCimbalomAcc"><td class="style-cell">Magyar Nóta</td><td class="name-cell">With Cimbalom</td><td class="desc-cell">Sighing melody over shimmering arpeggios</td><td><button class="play-btn" disabled>Play</button></td></tr>
+                <tr data-experiment="notaEnsemble"><td class="style-cell">Magyar Nóta</td><td class="name-cell">Full Ensemble</td><td class="desc-cell">Prímás, secondo, cimbalom, and bass</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="kotoPluck"><td class="style-cell">Japanese</td><td class="name-cell">Koto Pluck</td><td class="desc-cell">Hirajoshi plucked strings</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="kotoOshide"><td class="style-cell">Japanese</td><td class="name-cell">Koto Oshide</td><td class="desc-cell">Pitch bend aftertouch</td><td><button class="play-btn" disabled>Play</button></td></tr>
                 <tr data-experiment="kotoTremolo"><td class="style-cell">Japanese</td><td class="name-cell">Koto Tremolo</td><td class="desc-cell">Rapid repeated plucks</td><td><button class="play-btn" disabled>Play</button></td></tr>
@@ -357,8 +360,8 @@
             to run SuperCollider's synthesis engine directly in your browser via WebAssembly.
             <br><br>
             Each instrument is a <code>SynthDef</code> — a compiled synthesis algorithm that models
-            the acoustic properties of traditional Hungarian folk instruments. The gallery includes
-            28 different instruments across 9 regional styles.
+            the acoustic properties of traditional folk instruments. The gallery includes
+            45 experiments across 11 regional styles.
         </aside>
     </main>
 
@@ -927,6 +930,118 @@
                             dur: 0.1,
                             amp: (i % 4 === 0) ? 0.36 : 0.22
                         });
+                    });
+                }
+            },
+
+            // Magyar Nóta (19th century romantic popular song)
+            notaSentimental: {
+                synthDefs: ['notaViolin', 'notaCimbalom'],
+                duration: 5,
+                play: (p) => {
+                    // Romantic, sighing phrase in Hungarian minor
+                    const melody = [4, 6, 4, 3, 4, 2, 1, 0];
+                    const durations = [0.8, 0.5, 0.7, 0.4, 1.0, 0.5, 0.4, 1.2];
+                    const dynamics = [0.38, 0.42, 0.40, 0.36, 0.44, 0.38, 0.34, 0.38];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        const dur = durations[i];
+                        p.at(t, 'notaViolin', {
+                            freq: scaleToFreq(60, HUNGARIAN_MINOR, deg),
+                            dur: dur * 1.1,
+                            amp: dynamics[i],
+                            vibRate: 5.5,
+                            vibDepth: dur > 0.6 ? 0.025 : 0.015,
+                            attack: dur > 0.6 ? 0.06 : 0.03
+                        });
+                        // Light cimbalom on key notes
+                        if ([0, 2, 4, 7].includes(i)) {
+                            p.at(t, 'notaCimbalom', {
+                                freq: scaleToFreq(48, HUNGARIAN_MINOR, 0),
+                                amp: 0.18,
+                                dur: 0.8
+                            });
+                        }
+                        t += dur;
+                    });
+                }
+            },
+            notaCimbalomAcc: {
+                synthDefs: ['notaViolin', 'notaCimbalom'],
+                duration: 5,
+                play: (p) => {
+                    const melody = [0, 2, 4, 4, 3, 2, 0, -1, 0];
+                    const durs = [0.6, 0.4, 0.5, 0.8, 0.4, 0.4, 0.5, 0.3, 1.2];
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        const dur = durs[i];
+                        // Melody
+                        p.at(t, 'notaViolin', {
+                            freq: scaleToFreq(60, HUNGARIAN_MINOR, deg),
+                            dur: dur * 1.1,
+                            amp: 0.4,
+                            vibRate: 5
+                        });
+                        // Arpeggiated cimbalom chord on even beats
+                        if (i % 2 === 0) {
+                            [0, 2, 4].forEach((chordDeg, j) => {
+                                p.at(t + j * 0.03, 'notaCimbalom', {
+                                    freq: scaleToFreq(60, HUNGARIAN_MINOR, chordDeg),
+                                    amp: 0.15,
+                                    dur: 0.6
+                                });
+                            });
+                        }
+                        t += dur;
+                    });
+                }
+            },
+            notaEnsemble: {
+                synthDefs: ['notaViolin', 'notaSecondo', 'notaCimbalom', 'notaBass'],
+                duration: 6,
+                play: (p) => {
+                    const melody = [0, 2, 4, 6, 4, 3, 4, 2, 0, -1, 0, 0];
+                    const durs = [0.8, 0.4, 0.5, 1.0, 0.5, 0.4, 0.6, 0.4, 0.5, 0.3, 1.0, 0.5];
+                    const tempo = 0.35;
+                    let t = 0;
+                    melody.forEach((deg, i) => {
+                        const dur = durs[i] * tempo * 2;
+                        // Prímás (lead violin)
+                        p.at(t, 'notaViolin', {
+                            freq: scaleToFreq(60, HUNGARIAN_MINOR, deg),
+                            dur: dur * 1.1,
+                            amp: 0.4,
+                            vibRate: dur > 0.5 ? 5.5 : 0,
+                            vibDepth: 0.02
+                        });
+                        // Secondo (harmony violin) on some notes
+                        if ([2, 4, 6, 8].includes(i)) {
+                            p.at(t, 'notaSecondo', {
+                                freq: scaleToFreq(60, HUNGARIAN_MINOR, deg - 2),
+                                dur: dur * 0.8,
+                                amp: 0.18
+                            });
+                        }
+                        // Bass on beats
+                        if (i % 2 === 0) {
+                            const bassDeg = [4, 5, 6].includes(i) ? 4 : 0;
+                            p.at(t, 'notaBass', {
+                                freq: scaleToFreq(48, HUNGARIAN_MINOR, bassDeg),
+                                amp: 0.32,
+                                dur: tempo * 0.8
+                            });
+                        }
+                        // Cimbalom arpeggio every 3rd note
+                        if (i % 3 === 0) {
+                            [0, 2, 4].forEach((cd, j) => {
+                                p.at(t + j * 0.025, 'notaCimbalom', {
+                                    freq: scaleToFreq(60, HUNGARIAN_MINOR, cd),
+                                    amp: 0.14,
+                                    dur: 0.5
+                                });
+                            });
+                        }
+                        t += dur;
                     });
                 }
             },

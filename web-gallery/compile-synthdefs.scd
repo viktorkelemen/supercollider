@@ -870,6 +870,111 @@ SynthDef(\shamisenTsugaru, {
 }).writeDefFile(outputDir);
 
 // ============================================================================
+// MAGYAR NÓTA (Hungarian Popular Song)
+// ============================================================================
+"[Magyar Nóta] Compiling sentimental synths...".postln;
+
+SynthDef(\notaViolin, {
+    |out = 0, freq = 440, amp = 0.38, dur = 0.5, pan = -0.25,
+     vibRate = 5.5, vibDepth = 0.02, vibDelay = 0.08,
+     attack = 0.04, brightness = 0.6|
+    var env, vibEnv, vibrato, sig, formant1, formant2, formant3;
+    env = EnvGen.kr(
+        Env([0, 1, 0.85, 0.7, 0],
+            [attack, dur * 0.25, dur * 0.45, dur * 0.26],
+            [3, -1, -2, -4]),
+        doneAction: 2
+    );
+    vibEnv = EnvGen.kr(Env([0, 0, 1, 1.1], [vibDelay, 0.1, dur * 0.5]));
+    vibrato = SinOsc.kr(vibRate + LFNoise1.kr(0.5).range(-0.4, 0.4))
+              * freq * vibDepth * vibEnv;
+    sig = LFSaw.ar(freq + vibrato);
+    formant1 = BPF.ar(sig, 300, 0.3) * 2.5;
+    formant2 = BPF.ar(sig, 550, 0.25) * 2;
+    formant3 = BPF.ar(sig, 2800, 0.18) * 1.5;
+    sig = sig + formant1 + formant2 + formant3;
+    sig = LPF.ar(sig, freq * (2 + (brightness * 6)));
+    sig = (sig * 1.4).tanh * 0.75;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\notaSlide, {
+    |out = 0, startFreq = 440, endFreq = 400, amp = 0.35, dur = 0.6,
+     slideTime = 0.15, vibRate = 5, vibDepth = 0.018, pan = -0.25|
+    var env, freqEnv, vibrato, sig, formant1, formant2, freq;
+    freqEnv = EnvGen.kr(Env([startFreq, startFreq, endFreq], [0.03, slideTime], \exp));
+    freq = freqEnv;
+    env = EnvGen.kr(
+        Env([0, 1, 0.8, 0], [0.05, dur * 0.65, dur * 0.3], [2, -2, -4]),
+        doneAction: 2
+    );
+    vibrato = SinOsc.kr(vibRate) * freq * vibDepth;
+    sig = LFSaw.ar(freq + vibrato);
+    formant1 = BPF.ar(sig, 300, 0.3) * 2.5;
+    formant2 = BPF.ar(sig, 550, 0.25) * 2;
+    sig = sig + formant1 + formant2;
+    sig = LPF.ar(sig, freq * 5);
+    sig = (sig * 1.4).tanh * 0.75;
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\notaCimbalom, {
+    |out = 0, freq = 440, amp = 0.25, dur = 1.0, pan = 0.2|
+    var env, partials, sig, attack;
+    env = EnvGen.kr(Env.perc(0.001, dur, 1, -5), doneAction: 2);
+    partials = [1, 2.002, 3.003, 4.006, 5.01, 6.015];
+    sig = Mix(partials.collect { |p, i|
+        SinOsc.ar(freq * p + LFNoise1.kr(0.3).range(-0.5, 0.5), 0, 1 / (i + 1).sqrt)
+    });
+    attack = HPF.ar(WhiteNoise.ar, 4000) * EnvGen.kr(Env.perc(0.0001, 0.008)) * 0.12;
+    sig = sig + attack;
+    sig = LPF.ar(sig, freq * 7);
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\notaCimbTrem, {
+    |out = 0, freq = 440, amp = 0.22, dur = 1.0, rate = 14, pan = 0.2|
+    var env, trem, sig;
+    env = EnvGen.kr(Env.linen(0.02, dur * 0.8, dur * 0.18), doneAction: 2);
+    trem = LFPulse.kr(rate, 0, 0.4);
+    sig = Mix([1, 2.002, 3.003, 4.006].collect { |p, i|
+        SinOsc.ar(freq * p, 0, 1 / (i + 1))
+    });
+    sig = sig * (trem * 0.6 + 0.4);
+    sig = LPF.ar(sig, freq * 6);
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\notaBass, {
+    |out = 0, freq = 55, amp = 0.35, dur = 0.4|
+    var env, sig;
+    env = EnvGen.kr(Env.perc(0.02, dur, 1, -4), doneAction: 2);
+    sig = SinOsc.ar(freq) + (SinOsc.ar(freq * 2) * 0.2) + (SinOsc.ar(freq * 3) * 0.08);
+    sig = LPF.ar(sig, 400);
+    Out.ar(out, Pan2.ar(sig * env * amp, 0));
+}).writeDefFile(outputDir);
+
+SynthDef(\notaSecondo, {
+    |out = 0, freq = 440, amp = 0.2, dur = 0.3, pan = 0.1|
+    var env, sig;
+    env = EnvGen.kr(Env.perc(0.02, dur, 1, -5), doneAction: 2);
+    sig = LFSaw.ar(freq);
+    sig = BPF.ar(sig, 450, 0.4) * 2 + (sig * 0.4);
+    sig = LPF.ar(sig, freq * 3);
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).writeDefFile(outputDir);
+
+SynthDef(\notaGrace, {
+    |out = 0, freq = 440, amp = 0.2, dur = 0.04|
+    var env, sig;
+    env = EnvGen.kr(Env.perc(0.005, dur), doneAction: 2);
+    sig = LFSaw.ar(freq);
+    sig = BPF.ar(sig, 500, 0.5) * 2 + (sig * 0.4);
+    sig = LPF.ar(sig, freq * 3);
+    Out.ar(out, Pan2.ar(sig * env * amp, -0.25));
+}).writeDefFile(outputDir);
+
+// ============================================================================
 // Done
 // ============================================================================
 "".postln;
@@ -877,16 +982,17 @@ SynthDef(\shamisenTsugaru, {
 "Output directory: %".format(outputDir).postln;
 "".postln;
 "Compiled SynthDefs:".postln;
-"  [Verbunkos] cimbalom, cimbalomTremolo, verbViolin, verbViolinSlide, bracsa, bracsaAccent".postln;
-"  [Shepherd]  shepFurulya, shepTilinko, shepLongFlute".postln;
-"  [Duda]      dudaDrone, dudaDeepDrone, dudaChanter, dudaChanterLong, dudaChanterStaccato, dudaCut, dudaDoubleCut, dudaTripletCut, dudaStomp, dudaHeel, dudaBootSlap".postln;
-"  [Csárdás]   csardViolin, csardBass".postln;
-"  [Hallgató]  hallgatoViolin".postln;
-"  [Legényes]  legenyViolin, legenyGardon".postln;
-"  [Táncház]   tzViolin, tzViolinLong, tzViolinStaccato, tzViolinGrace, tzViolinSlide, tzBracsa, tzBracsaAccent, tzGardon, tzBass, tzCajonTone, tzFootStomp".postln;
-"  [Széki]     szekViolin, szekGardon".postln;
-"  [Csángó]    csangoTilinko, csangoVoice, csangoGardon".postln;
-"  [Japanese]  koto, kotoOshide, kotoTremolo, kotoSweep, shakuhachi, shakuhachiMeri, shakuhachiKari, shakuhachiMuraiki, shamisen, shamisenDrone, shamisenSlide, shamisenTsugaru".postln;
+"  [Verbunkos]    cimbalom, cimbalomTremolo, verbViolin, verbViolinSlide, bracsa, bracsaAccent".postln;
+"  [Shepherd]     shepFurulya, shepTilinko, shepLongFlute".postln;
+"  [Duda]         dudaDrone, dudaDeepDrone, dudaChanter, dudaChanterLong, dudaChanterStaccato, dudaCut, dudaDoubleCut, dudaTripletCut, dudaStomp, dudaHeel, dudaBootSlap".postln;
+"  [Csárdás]      csardViolin, csardBass".postln;
+"  [Hallgató]     hallgatoViolin".postln;
+"  [Legényes]     legenyViolin, legenyGardon".postln;
+"  [Táncház]      tzViolin, tzViolinLong, tzViolinStaccato, tzViolinGrace, tzViolinSlide, tzBracsa, tzBracsaAccent, tzGardon, tzBass, tzCajonTone, tzFootStomp".postln;
+"  [Széki]        szekViolin, szekGardon".postln;
+"  [Csángó]       csangoTilinko, csangoVoice, csangoGardon".postln;
+"  [Magyar Nóta]  notaViolin, notaSlide, notaCimbalom, notaCimbTrem, notaBass, notaSecondo, notaGrace".postln;
+"  [Japanese]     koto, kotoOshide, kotoTremolo, kotoSweep, shakuhachi, shakuhachiMeri, shakuhachiKari, shakuhachiMuraiki, shamisen, shamisenDrone, shamisenSlide, shamisenTsugaru".postln;
 "".postln;
-"Total: 53 SynthDefs".postln;
+"Total: 60 SynthDefs".postln;
 )
