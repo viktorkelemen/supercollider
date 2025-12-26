@@ -782,6 +782,384 @@ Routine({
 )
 
 // ============================================================================
+// EXPERIMENT 11: Extended Tsugaru Performance (2 minutes)
+// ============================================================================
+// Following COMPOSITION.md energy arc:
+// - Intro (0:00-0:24): Establish mood, drone + sparse powerful notes
+// - Development (0:24-0:50): Build density, add ornamentation
+// - Peak (0:50-1:15): Maximum intensity, fast phrases, tremolo
+// - Breakdown (1:15-1:36): Strip back, create space
+// - Resolution (1:36-2:00): Final phrases, resolve to root
+// ============================================================================
+(
+var root = 50;  // D3
+var scale = ~inScale;  // [0, 1, 5, 7, 8] - dark, urban character
+
+// Helper for melodic phrases
+var playPhrase = { |degrees, baseDur, amp, sawari, variation = 0.1|
+    degrees.do { |deg, i|
+        var dur = baseDur * (1 + variation.rand2);
+        Synth(\shamisenTsugaru, [
+            \freq, ~scaleToFreq.(root, scale, deg),
+            \dur, dur * 2.5,
+            \sawari, sawari,
+            \amp, amp
+        ]);
+        dur.wait;
+    };
+};
+
+Routine({
+    "=== TSUGARU SHAMISEN - Extended Performance (2:00) ===".postln;
+    "Following energy arc: intro → development → peak → breakdown → resolution".postln;
+
+    // =========================================================================
+    // INTRO (0:00-0:24) - Establish mood, Foundation + sparse Focus
+    // =========================================================================
+    ">> INTRO: Establishing mood...".postln;
+
+    // Low drone enters - Foundation
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 8.0,
+        \sawari, 0.5,
+        \amp, 0.22
+    ]);
+
+    2.0.wait;
+
+    // First powerful strike - Focus
+    Synth(\shamisenTsugaru, [
+        \freq, ~scaleToFreq.(root, scale, 0),
+        \dur, 2.5,
+        \sawari, 0.7,
+        \amp, 0.38
+    ]);
+
+    3.5.wait;
+
+    // Answer phrase - sparse
+    Synth(\shamisenSlide, [
+        \startFreq, ~scaleToFreq.(root, scale, 2),
+        \endFreq, ~scaleToFreq.(root, scale, 3),
+        \dur, 2.0,
+        \slideTime, 0.2,
+        \sawari, 0.5,
+        \amp, 0.34
+    ]);
+
+    2.5.wait;
+
+    // Renew drone
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 10.0,
+        \sawari, 0.55,
+        \amp, 0.24
+    ]);
+
+    // Descending to root
+    [3, 2, 1, 0].do { |deg|
+        Synth(\shamisen, [
+            \freq, ~scaleToFreq.(root, scale, deg),
+            \dur, 1.8,
+            \sawari, 0.45,
+            \amp, 0.32
+        ]);
+        1.2.wait;
+    };
+
+    // Breath
+    1.5.wait;
+
+    // =========================================================================
+    // DEVELOPMENT (0:24-0:50) - Add Pulse + Movement, build density
+    // =========================================================================
+    ">> DEVELOPMENT: Building intensity...".postln;
+
+    // Stronger drone - Foundation
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 12.0,
+        \sawari, 0.65,
+        \amp, 0.26
+    ]);
+
+    0.5.wait;
+
+    // Rhythmic phrase 1 - Movement
+    playPhrase.([0, 2, 3, 2, 0], 0.28, 0.36, 0.55);
+
+    1.0.wait;
+
+    // Grace note ornament + strong note
+    Synth(\shamisenGrace, [\freq, ~scaleToFreq.(root, scale, 2), \dur, 0.04, \amp, 0.18]);
+    0.03.wait;
+    Synth(\shamisenTsugaru, [
+        \freq, ~scaleToFreq.(root, scale, 3),
+        \dur, 1.5,
+        \sawari, 0.7,
+        \amp, 0.4
+    ]);
+
+    1.3.wait;
+
+    // Ascending phrase with slide
+    [0, 1, 2].do { |deg|
+        Synth(\shamisen, [
+            \freq, ~scaleToFreq.(root, scale, deg),
+            \dur, 0.5,
+            \sawari, 0.5,
+            \amp, 0.34
+        ]);
+        0.3.wait;
+    };
+    Synth(\shamisenSlide, [
+        \startFreq, ~scaleToFreq.(root, scale, 2),
+        \endFreq, ~scaleToFreq.(root, scale, 4),
+        \dur, 1.2,
+        \slideTime, 0.1,
+        \amp, 0.38
+    ]);
+
+    1.5.wait;
+
+    // Uchi hammer-on sequence - adding texture
+    2.do {
+        Synth(\shamisen, [\freq, ~scaleToFreq.(root, scale, 1), \dur, 0.35, \amp, 0.3]);
+        0.22.wait;
+        Synth(\shamisenUchi, [\freq, ~scaleToFreq.(root, scale, 2), \dur, 0.5, \amp, 0.28]);
+        0.4.wait;
+    };
+
+    // Renew drone with higher intensity
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 14.0,
+        \sawari, 0.7,
+        \amp, 0.28
+    ]);
+
+    0.3.wait;
+
+    // Faster phrase building tension
+    playPhrase.([0, 2, 3, 4, 3, 2, 3, 4], 0.22, 0.38, 0.6, 0.08);
+
+    1.0.wait;
+
+    // =========================================================================
+    // PEAK (0:50-1:15) - Maximum intensity, all voices
+    // =========================================================================
+    ">> PEAK: Maximum intensity...".postln;
+
+    // Powerful opening strike
+    Synth(\shamisenTsugaru, [
+        \freq, ~scaleToFreq.(root, scale, 4),
+        \dur, 1.8,
+        \sawari, 0.85,
+        \amp, 0.45
+    ]);
+
+    // Simultaneous middle drone
+    0.1.wait;
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root, scale, 0),
+        \dur, 6.0,
+        \sawari, 0.6,
+        \amp, 0.22
+    ]);
+
+    1.2.wait;
+
+    // Rapid descending runs
+    2.do { |run|
+        [4, 3, 2, 1, 0].do { |deg, i|
+            Synth(\shamisenTsugaru, [
+                \freq, ~scaleToFreq.(root, scale, deg),
+                \dur, 0.3,
+                \sawari, 0.65,
+                \amp, 0.4 - (i * 0.02)
+            ]);
+            (0.12 - (run * 0.02)).wait;
+        };
+        0.3.wait;
+    };
+
+    // Tremolo climax - Color
+    Synth(\shamisenTremolo, [
+        \freq, ~scaleToFreq.(root, scale, 3),
+        \dur, 1.5,
+        \rate, 14,
+        \sawari, 0.7,
+        \amp, 0.38
+    ]);
+
+    1.3.wait;
+
+    // Powerful strike with grace
+    Synth(\shamisenGrace, [\freq, ~scaleToFreq.(root, scale, 3), \dur, 0.035, \amp, 0.2]);
+    0.025.wait;
+    Synth(\shamisenTsugaru, [
+        \freq, ~scaleToFreq.(root, scale, 4),
+        \dur, 1.5,
+        \sawari, 0.85,
+        \amp, 0.46
+    ]);
+
+    0.8.wait;
+
+    // Fast alternating pattern
+    6.do { |i|
+        var deg = [4, 2, 4, 3, 4, 2][i];
+        Synth(\shamisenTsugaru, [
+            \freq, ~scaleToFreq.(root, scale, deg),
+            \dur, 0.25,
+            \sawari, 0.6,
+            \amp, 0.38
+        ]);
+        0.13.wait;
+    };
+
+    // Accelerating tremolo
+    [8, 12, 16].do { |rate, i|
+        Synth(\shamisenTremolo, [
+            \freq, ~scaleToFreq.(root, scale, 3 - i),
+            \dur, 0.5,
+            \rate, rate,
+            \sawari, 0.6,
+            \amp, 0.34
+        ]);
+        0.4.wait;
+    };
+
+    // Peak moment - full power
+    Synth(\shamisenTsugaru, [
+        \freq, ~scaleToFreq.(root, scale, 0),
+        \dur, 2.5,
+        \sawari, 0.9,
+        \amp, 0.48
+    ]);
+    0.15.wait;
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 4.0,
+        \sawari, 0.75,
+        \amp, 0.3
+    ]);
+
+    2.5.wait;
+
+    // =========================================================================
+    // BREAKDOWN (1:15-1:36) - Strip back, create absence
+    // =========================================================================
+    ">> BREAKDOWN: Creating space...".postln;
+
+    // Just drone - Foundation only
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 8.0,
+        \sawari, 0.5,
+        \amp, 0.2
+    ]);
+
+    3.0.wait;
+
+    // Single hajiki - soft, intimate
+    Synth(\shamisenHajiki, [
+        \freq, ~scaleToFreq.(root, scale, 2),
+        \dur, 1.5,
+        \amp, 0.24
+    ]);
+
+    2.5.wait;
+
+    // Another soft note
+    Synth(\shamisenHajiki, [
+        \freq, ~scaleToFreq.(root, scale, 3),
+        \dur, 1.2,
+        \amp, 0.22
+    ]);
+
+    2.0.wait;
+
+    // Slide down - gentle
+    Synth(\shamisenSlide, [
+        \startFreq, ~scaleToFreq.(root, scale, 2),
+        \endFreq, ~scaleToFreq.(root, scale, 0),
+        \dur, 2.0,
+        \slideTime, 0.25,
+        \sawari, 0.3,
+        \amp, 0.26
+    ]);
+
+    2.5.wait;
+
+    // Renew drone for resolution
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 10.0,
+        \sawari, 0.55,
+        \amp, 0.22
+    ]);
+
+    1.0.wait;
+
+    // =========================================================================
+    // RESOLUTION (1:36-2:00) - Return with purpose, resolve
+    // =========================================================================
+    ">> RESOLUTION: Resolving...".postln;
+
+    // Grace into strong note - partial return
+    Synth(\shamisenGrace, [\freq, ~scaleToFreq.(root, scale, 1), \dur, 0.04, \amp, 0.18]);
+    0.03.wait;
+    Synth(\shamisenTsugaru, [
+        \freq, ~scaleToFreq.(root, scale, 2),
+        \dur, 1.8,
+        \sawari, 0.65,
+        \amp, 0.38
+    ]);
+
+    1.5.wait;
+
+    // Final melodic phrase - slower, deliberate
+    [3, 2, 1, 0].do { |deg, i|
+        Synth(\shamisen, [
+            \freq, ~scaleToFreq.(root, scale, deg),
+            \dur, 1.5 + (i * 0.2),
+            \sawari, 0.5 + (i * 0.08),
+            \amp, 0.34
+        ]);
+        (0.7 + (i * 0.15)).wait;
+    };
+
+    0.5.wait;
+
+    // Final powerful root
+    Synth(\shamisenTsugaru, [
+        \freq, ~scaleToFreq.(root, scale, 0),
+        \dur, 3.0,
+        \sawari, 0.8,
+        \amp, 0.42
+    ]);
+
+    0.2.wait;
+
+    // Final low drone
+    Synth(\shamisenDrone, [
+        \freq, ~scaleToFreq.(root - 12, scale, 0),
+        \dur, 5.0,
+        \sawari, 0.6,
+        \amp, 0.25,
+        \decay, 0.7
+    ]);
+
+    4.0.wait;
+
+    "=== Performance complete ===".postln;
+}).play;
+)
+
+// ============================================================================
 // CLEANUP
 // ============================================================================
 s.freeAll;
