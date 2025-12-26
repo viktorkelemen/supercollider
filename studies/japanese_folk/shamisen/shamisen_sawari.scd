@@ -26,12 +26,9 @@
 ~inScale = [0, 1, 5, 7, 8];      // A Bb D E F - dark, urban shamisen
 ~yoScale = [0, 2, 5, 7, 9];      // D E G A B - bright, folk
 ~scaleToFreq = { |root, scale, degree, octave = 0|
+    // SC's % already handles negatives correctly: -1 % 5 = 4
     var idx = degree % scale.size;
     var oct = (degree / scale.size).floor + octave;
-    if(degree < 0) {
-        idx = scale.size + (degree % scale.size);
-        oct = (degree / scale.size).floor;
-    };
     (root + scale[idx] + (oct * 12)).midicps;
 };
 )
