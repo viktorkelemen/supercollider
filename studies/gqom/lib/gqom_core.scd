@@ -374,7 +374,7 @@ SynthDef(\gqomVocalChop, {
 
 // Synthetic vocal texture (no sample needed)
 SynthDef(\gqomVocalSynth, {
-    |out = 0, freq = 200, amp = 0.3, dur = 0.5, pan = 0,
+    |out = 0, freq = 200, amp = 0.3, sustain = 0.5, pan = 0,
      formant1 = 600, formant2 = 1200|
     var sig, env, form1, form2;
 
@@ -386,7 +386,7 @@ SynthDef(\gqomVocalSynth, {
     sig = form1 + form2;
     sig = LPF.ar(sig, 3000);
 
-    env = EnvGen.kr(Env.perc(0.02, dur), doneAction: 2);
+    env = EnvGen.kr(Env.perc(0.02, sustain), doneAction: 2);
 
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).add;

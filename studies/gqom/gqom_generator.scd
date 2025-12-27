@@ -412,28 +412,29 @@ libPath.load;
 // ============================================================================
 // USAGE EXAMPLES
 // ============================================================================
+// Evaluate these lines manually - they are not auto-executed
 
 // Initialize the track generator
-~track = ~GqomTrack.copy.init(120, 55);
+// ~track = ~GqomTrack.copy.init(120, 55);
 
 // Manual section control
-~track.playIntro(16);
-~track.playBuild(16);
-~track.playDrop(32);
-~track.playBreakdown(8);
-~track.playOutro(16);
+// ~track.playIntro(16);
+// ~track.playBuild(16);
+// ~track.playDrop(32);
+// ~track.playBreakdown(8);
+// ~track.playOutro(16);
 
 // Stop
-~track.stop;
+// ~track.stop;
 
 // Play full automated track
-~track.playFullTrack;
+// ~track.playFullTrack;
 
 // Stop at any time
-~track.stop;
+// ~track.stop;
 
 // Free all resources
-~track.free;
+// ~track.free;
 
 // ============================================================================
 // QUICK START - EVALUATE THIS BLOCK FOR INSTANT GQOM
@@ -446,7 +447,7 @@ libPath.load;
 )
 
 // Stop
-~track.free;
+// ~track.free;
 
 // ============================================================================
 // VARIATION: 3-STEP GQOM
@@ -459,7 +460,7 @@ libPath.load;
 )
 
 // Stop
-~track3Step.free;
+// ~track3Step.free;
 
 // ============================================================================
 // VARIATION: GQOM TECH (FASTER)
@@ -471,10 +472,10 @@ libPath.load;
 )
 
 // Stop
-~trackTech.free;
+// ~trackTech.free;
 
 // ============================================================================
 // CLEANUP
 // ============================================================================
 
-s.freeAll;
+// s.freeAll;

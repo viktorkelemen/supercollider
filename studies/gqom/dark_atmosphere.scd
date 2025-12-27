@@ -188,7 +188,7 @@ libPath.load;
     \dur, Prand([1, 2, 1.5, 0.5], inf),
     \amp, Pwhite(0.15, 0.3),
     \freq, Prand([110, 165, 220, 82.5], inf),  // A, E, A octave
-    \dur, Pwhite(0.3, 0.8),
+    \sustain, Pwhite(0.3, 0.8),
     \formant1, Pwhite(400, 800),
     \formant2, Pwhite(1000, 1600),
     \pan, Pwhite(-0.5, 0.5)
@@ -363,7 +363,7 @@ libPath.load;
     \dur, Prand([2, 3, 4, 6], inf),
     \amp, Pwhite(0.1, 0.2),
     \freq, Prand([110, 220, 165], inf),
-    \dur, Pwhite(0.4, 1.0),
+    \sustain, Pwhite(0.4, 1.0),
     \formant1, Pwhite(500, 700),
     \formant2, Pwhite(1100, 1400),
     \pan, Pwhite(-0.6, 0.6)
@@ -441,4 +441,4 @@ libPath.load;
 // CLEANUP
 // ============================================================================
 
-s.freeAll;
+// s.freeAll;
