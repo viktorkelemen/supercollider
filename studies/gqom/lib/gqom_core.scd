@@ -99,9 +99,20 @@
 // ============================================================================
 // EFFECTS BUS
 // ============================================================================
+// Bus allocation requires server to be running - call ~gqomInitBusses.() after boot
 
-~gqomReverbBus = Bus.audio(s, 2);
-~gqomDelayBus = Bus.audio(s, 2);
+~gqomInitBusses = {
+    if(s.serverRunning, {
+        ~gqomReverbBus = Bus.audio(s, 2);
+        ~gqomDelayBus = Bus.audio(s, 2);
+        "Gqom busses initialized".postln;
+    }, {
+        "Server not running - call ~gqomInitBusses.() after s.boot".postln;
+    });
+};
+
+// Try to init now if server is running
+~gqomInitBusses.();
 
 // Dark reverb for atmosphere
 SynthDef(\gqomReverb, {
@@ -444,8 +455,7 @@ SynthDef(\gqomSine, {
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
-
-s.sync;
+// Note: SynthDefs use .add which is asynchronous - they'll be ready shortly after load
 
 "".postln;
 "============================================".postln;
