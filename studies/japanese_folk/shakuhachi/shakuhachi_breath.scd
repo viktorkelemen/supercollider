@@ -611,7 +611,7 @@ Routine({
     var scale = ~inScale;
 
     "Basic shakuhachi tone with delayed vibrato:".postln;
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 2.5,
         \vibRate, 4.5,
@@ -624,7 +624,7 @@ Routine({
     3.0.wait;
 
     "Without vibrato (pure tone):".postln;
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 2.0,
         \vibRate, 0,
@@ -645,7 +645,7 @@ Routine({
     var note = ~scaleToFreq.(root, scale, 2);  // D (5th degree)
 
     "Meri (downward bend, darker):".postln;
-    Synth(\shakuhachiMeri, [
+    Synth(\shakuhachiV4Meri, [
         \freq, note,
         \dur, 1.8,
         \meriDepth, 1.2,
@@ -656,7 +656,7 @@ Routine({
     2.5.wait;
 
     "Kari (upward bend, brighter):".postln;
-    Synth(\shakuhachiKari, [
+    Synth(\shakuhachiV4Kari, [
         \freq, note,
         \dur, 1.5,
         \kariDepth, 0.5,
@@ -667,7 +667,7 @@ Routine({
     2.0.wait;
 
     "Meri-Kari cadence gesture:".postln;
-    Synth(\shakuhachiMeriKari, [
+    Synth(\shakuhachiV4MeriKari, [
         \freq, note,
         \dur, 0.8,
         \amp, 0.38
@@ -686,7 +686,7 @@ Routine({
     "Shakuhachi phrase with ma (intentional silence):".postln;
 
     // First note - establish
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 2),
         \dur, 1.5,
         \vibDelay, 0.5,
@@ -698,7 +698,7 @@ Routine({
     0.8.wait;
 
     // Second note - respond
-    Synth(\shakuhachiMeri, [
+    Synth(\shakuhachiV4Meri, [
         \freq, ~scaleToFreq.(root, scale, 1),
         \dur, 1.2,
         \meriDepth, 0.8,
@@ -710,7 +710,7 @@ Routine({
     1.2.wait;
 
     // Third note - conclude with cadence
-    Synth(\shakuhachiMeriKari, [
+    Synth(\shakuhachiV4MeriKari, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 1.0,
         \amp, 0.36
@@ -718,7 +718,7 @@ Routine({
     1.3.wait;
 
     // Final rest
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 2.5,
         \vibRate, 4,
@@ -747,7 +747,7 @@ Routine({
         var dur = durations[i];
 
         if(hasMeri[i]) {
-            Synth(\shakuhachiMeri, [
+            Synth(\shakuhachiV4Meri, [
                 \freq, ~scaleToFreq.(root, scale, deg),
                 \dur, dur * 1.1,
                 \meriDepth, 0.7,
@@ -755,7 +755,7 @@ Routine({
                 \amp, 0.34
             ]);
         } {
-            Synth(\shakuhachi, [
+            Synth(\shakuhachiV4, [
                 \freq, ~scaleToFreq.(root, scale, deg),
                 \dur, dur * 1.1,
                 \vibRate, if(dur > 0.8, 4.5, 0),
@@ -790,7 +790,7 @@ Routine({
         var dur = [0.5, 0.4, 0.5, 0.9][i];
         var amp = 0.28 + (i * 0.03);  // Crescendo through phrase
 
-        Synth(\shakuhachi, [
+        Synth(\shakuhachiV4, [
             \freq, ~scaleToFreq.(root, scale, deg),
             \dur, dur * 1.15,
             \vibRate, if(dur > 0.6, 4.5, 0),
@@ -810,13 +810,13 @@ Routine({
 
         if(i == 3) {
             // Final note with meri-kari cadence
-            Synth(\shakuhachiMeriKari, [
+            Synth(\shakuhachiV4MeriKari, [
                 \freq, ~scaleToFreq.(root, scale, deg),
                 \dur, dur,
                 \amp, amp
             ]);
         } {
-            Synth(\shakuhachi, [
+            Synth(\shakuhachiV4, [
                 \freq, ~scaleToFreq.(root, scale, deg),
                 \dur, dur * 1.1,
                 \vibRate, if(dur > 0.5, 4, 0),
@@ -830,7 +830,7 @@ Routine({
     1.5.wait;
 
     // Phrase 3 - single contemplative note
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 3.0,
         \vibRate, 4.5,
@@ -853,7 +853,7 @@ Routine({
 
     // JO (序) - slow introduction, establishing mood
     "Jo (slow introduction):".postln;
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 2.5,
         \vibDelay, 0.8,
@@ -862,7 +862,7 @@ Routine({
     ]);
     3.2.wait;
 
-    Synth(\shakuhachiMeri, [
+    Synth(\shakuhachiV4Meri, [
         \freq, ~scaleToFreq.(root, scale, 2),
         \dur, 2.0,
         \meriDepth, 1.0,
@@ -877,14 +877,14 @@ Routine({
         var useMeri = [2, 5].includes(i);
 
         if(useMeri) {
-            Synth(\shakuhachiMeri, [
+            Synth(\shakuhachiV4Meri, [
                 \freq, ~scaleToFreq.(root, scale, deg),
                 \dur, dur * 1.05,
                 \meriDepth, 0.6,
                 \amp, 0.34
             ]);
         } {
-            Synth(\shakuhachi, [
+            Synth(\shakuhachiV4, [
                 \freq, ~scaleToFreq.(root, scale, deg),
                 \dur, dur * 1.05,
                 \vibRate, if(dur > 0.5, 4.5, 0),
@@ -901,7 +901,7 @@ Routine({
     [4, 3, 2, 1, 0].do { |deg, i|
         var dur = 0.25 - (i * 0.02);  // Accelerating
 
-        Synth(\shakuhachi, [
+        Synth(\shakuhachiV4, [
             \freq, ~scaleToFreq.(root, scale, deg),
             \dur, dur * 1.3,
             \attack, 0.05,
@@ -933,7 +933,7 @@ Routine({
 
     // Normal tone for comparison
     "Normal attack:".postln;
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 2),
         \dur, 1.0,
         \amp, 0.35
@@ -950,7 +950,7 @@ Routine({
     0.6.wait;
 
     // Follow with sustained tone
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 2),
         \dur, 1.5,
         \attack, 0.08,
@@ -982,7 +982,7 @@ Routine({
     "Full ornamented shakuhachi phrase:".postln;
 
     // Opening - slow, establishing with meri
-    Synth(\shakuhachiMeri, [
+    Synth(\shakuhachiV4Meri, [
         \freq, ~scaleToFreq.(root, scale, 3),
         \dur, 1.8,
         \meriDepth, 1.2,
@@ -992,7 +992,7 @@ Routine({
     2.3.wait;
 
     // Step down with vibrato
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 2),
         \dur, 1.2,
         \vibRate, 4.5,
@@ -1003,7 +1003,7 @@ Routine({
     1.5.wait;
 
     // Kari for brightness contrast
-    Synth(\shakuhachiKari, [
+    Synth(\shakuhachiV4Kari, [
         \freq, ~scaleToFreq.(root, scale, 3),
         \dur, 0.9,
         \kariDepth, 0.4,
@@ -1013,7 +1013,7 @@ Routine({
 
     // Quick descent
     [2, 1].do { |deg|
-        Synth(\shakuhachi, [
+        Synth(\shakuhachiV4, [
             \freq, ~scaleToFreq.(root, scale, deg),
             \dur, 0.4,
             \attack, 0.06,
@@ -1024,7 +1024,7 @@ Routine({
     };
 
     // Meri-kari cadence on tonic
-    Synth(\shakuhachiMeriKari, [
+    Synth(\shakuhachiV4MeriKari, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 0.9,
         \amp, 0.35
@@ -1035,7 +1035,7 @@ Routine({
     0.8.wait;
 
     // Final sustained tonic
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, ~scaleToFreq.(root, scale, 0),
         \dur, 3.0,
         \vibRate, 4,
@@ -1059,7 +1059,7 @@ Routine({
     "Breathiness comparison:".postln;
 
     "Low breathiness (more pure tone):".postln;
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, note,
         \dur, 1.5,
         \breathiness, 0.15,
@@ -1069,7 +1069,7 @@ Routine({
     2.0.wait;
 
     "Medium breathiness (balanced):".postln;
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, note,
         \dur, 1.5,
         \breathiness, 0.4,
@@ -1079,7 +1079,7 @@ Routine({
     2.0.wait;
 
     "High breathiness (wind-like):".postln;
-    Synth(\shakuhachi, [
+    Synth(\shakuhachiV4, [
         \freq, note,
         \dur, 1.5,
         \breathiness, 0.7,
