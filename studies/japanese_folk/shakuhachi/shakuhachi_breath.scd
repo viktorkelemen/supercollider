@@ -333,6 +333,82 @@ SynthDef(\shakuhachiV3, {
 
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).add;
+
+// Shakuhachi V4 - evolving harmonics + constant breath
+// Based on analysis showing:
+// - H2 grows from 17% (attack) to 44% (sustain)
+// - Noise stays constant at ~53% throughout (doesn't fade!)
+// - H4 grows from 1.8% to 4.9%
+SynthDef(\shakuhachiV4, {
+    |out = 0, freq = 261, amp = 0.3, dur = 2.0, pan = 0,
+     breathiness = 0.5, brightness = 0.6,
+     vibRate = 4.5, vibDepth = 0.006, vibDelay = 0.5|
+
+    var env, vibEnv, vibrato, sig;
+    var h1, h2, h3, h4, h5, h6;
+    var h2Env, h4Env;
+    var noise, breathEnv;
+
+    // Main amplitude envelope
+    env = EnvGen.kr(
+        Env([0, 0.3, 1, 0.9, 0],
+            [0.06, 0.12, dur - 0.38, 0.2],
+            [3, 1, -2, -4]),
+        doneAction: 2
+    );
+
+    // H2 develops over time: 17% at attack -> 44% at sustain
+    h2Env = EnvGen.kr(
+        Env([0.17, 0.17, 0.44, 0.44],
+            [0.05, 0.25, dur - 0.3],
+            [0, 3, 0])
+    );
+
+    // H4 also develops slightly: 1.8% -> 4.9%
+    h4Env = EnvGen.kr(
+        Env([0.018, 0.018, 0.049, 0.049],
+            [0.05, 0.25, dur - 0.3],
+            [0, 2, 0])
+    );
+
+    // Breath stays constant throughout (not fading!)
+    breathEnv = EnvGen.kr(
+        Env([0.8, 1, 1, 0.9],
+            [0.04, dur - 0.24, 0.2],
+            [2, 0, -2])
+    );
+
+    // Delayed vibrato
+    vibEnv = EnvGen.kr(Env([0, 0, 1], [vibDelay, 0.15]));
+    vibrato = SinOsc.kr(vibRate + LFNoise1.kr(0.3).range(-0.2, 0.2))
+              * freq * vibDepth * vibEnv;
+
+    // Harmonics with evolving levels
+    h1 = SinOsc.ar(freq + vibrato) * 1.0;
+    h2 = SinOsc.ar((freq * 2) + (vibrato * 2)) * h2Env;
+    h3 = SinOsc.ar((freq * 3) + (vibrato * 3)) * 0.015;
+    h4 = SinOsc.ar((freq * 4) + (vibrato * 4)) * h4Env;
+    h5 = SinOsc.ar((freq * 5) + (vibrato * 5)) * 0.02;
+    h6 = SinOsc.ar((freq * 6) + (vibrato * 6)) * 0.012;
+
+    sig = h1 + h2 + h3 + h4 + h5 + h6;
+
+    // Strong constant breath noise (~50% energy)
+    noise = BPF.ar(PinkNoise.ar, freq * 1.5, 1.2) * breathiness * breathEnv;
+    noise = noise + (BPF.ar(WhiteNoise.ar, freq * 3, 0.8) * breathiness * 0.3 * breathEnv);
+    sig = sig + noise;
+
+    // Gentle body resonance
+    sig = sig + (BPF.ar(sig, 800, 0.4) * 0.2);
+
+    // Brightness control
+    sig = LPF.ar(sig, freq * (2 + (brightness * 8)));
+
+    // Soft saturation
+    sig = (sig * 0.6).tanh;
+
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).add;
 )
 
 // ============================================================================
