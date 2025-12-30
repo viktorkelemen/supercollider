@@ -273,6 +273,66 @@ SynthDef(\shakuhachiMuraiki, {
 
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).add;
+
+// Shakuhachi V3 - based on spectral analysis of real sample
+// Analysis of Alesis Fusion sample showed:
+// - H1: 100%, H2: 44%, H3: 1.2%, H4: 4.9%, H5: 2.1%, H6: 1.2%
+// - Strong 2nd harmonic is the key shakuhachi characteristic
+// - Weak odd harmonics (unlike clarinet)
+SynthDef(\shakuhachiV3, {
+    |out = 0, freq = 261, amp = 0.3, dur = 2.0, pan = 0,
+     breathiness = 0.4, brightness = 0.6,
+     vibRate = 4.5, vibDepth = 0.006, vibDelay = 0.5|
+
+    var env, vibEnv, vibrato, sig;
+    var h1, h2, h3, h4, h5, h6;
+    var noise, breathEnv;
+
+    // Main envelope
+    env = EnvGen.kr(
+        Env([0, 0.3, 1, 0.9, 0],
+            [0.08, 0.12, dur - 0.4, 0.2],
+            [3, 1, -2, -4]),
+        doneAction: 2
+    );
+
+    // Breath envelope - present throughout
+    breathEnv = EnvGen.kr(
+        Env([0.7, 1, 0.6, 0.4],
+            [0.06, dur * 0.3, dur * 0.6],
+            [2, -2, -3])
+    );
+
+    // Delayed vibrato
+    vibEnv = EnvGen.kr(Env([0, 0, 1], [vibDelay, 0.15]));
+    vibrato = SinOsc.kr(vibRate + LFNoise1.kr(0.3).range(-0.2, 0.2))
+              * freq * vibDepth * vibEnv;
+
+    // Harmonics based on real sample analysis
+    h1 = SinOsc.ar(freq + vibrato) * 1.0;
+    h2 = SinOsc.ar((freq * 2) + (vibrato * 2)) * 0.44;
+    h3 = SinOsc.ar((freq * 3) + (vibrato * 3)) * 0.012;
+    h4 = SinOsc.ar((freq * 4) + (vibrato * 4)) * 0.049;
+    h5 = SinOsc.ar((freq * 5) + (vibrato * 5)) * 0.021;
+    h6 = SinOsc.ar((freq * 6) + (vibrato * 6)) * 0.012;
+
+    sig = h1 + h2 + h3 + h4 + h5 + h6;
+
+    // Breath noise - bandpass around 2nd harmonic area
+    noise = BPF.ar(PinkNoise.ar, freq * 2, 0.7) * breathiness * breathEnv;
+    sig = sig + noise;
+
+    // Gentle body resonance
+    sig = sig + (BPF.ar(sig, 800, 0.4) * 0.3);
+
+    // Brightness control
+    sig = LPF.ar(sig, freq * (2 + (brightness * 8)));
+
+    // Soft saturation
+    sig = (sig * 0.7).tanh;
+
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).add;
 )
 
 // ============================================================================
