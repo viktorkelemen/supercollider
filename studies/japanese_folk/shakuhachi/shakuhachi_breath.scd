@@ -409,6 +409,197 @@ SynthDef(\shakuhachiV4, {
 
     Out.ar(out, Pan2.ar(sig * env * amp, pan));
 }).add;
+
+// Shakuhachi V4 Meri - downward pitch bend with darker timbre
+SynthDef(\shakuhachiV4Meri, {
+    |out = 0, freq = 261, amp = 0.3, dur = 2.0, pan = 0,
+     meriDepth = 1.0, meriTime = 0.25,
+     breathiness = 0.55, brightness = 0.4,
+     vibRate = 4.5, vibDepth = 0.006, vibDelay = 0.5|
+
+    var env, vibEnv, vibrato, sig;
+    var h1, h2, h3, h4, h5, h6;
+    var h2Env, h4Env;
+    var noise, breathEnv;
+    var meriEnv, currentFreq, brightnessEnv;
+
+    // Meri pitch envelope - bend down and settle
+    meriEnv = EnvGen.kr(
+        Env([0, meriDepth.neg, meriDepth.neg * 0.85],
+            [meriTime * 0.4, meriTime * 0.6],
+            \sine)
+    );
+    currentFreq = freq * (2 ** (meriEnv / 12));
+
+    // Brightness decreases with meri (darker sound)
+    brightnessEnv = EnvGen.kr(
+        Env([1, 0.5, 0.6], [meriTime * 0.5, dur - meriTime], \sine)
+    );
+
+    env = EnvGen.kr(
+        Env([0, 0.3, 1, 0.9, 0],
+            [0.06, 0.12, dur - 0.38, 0.2],
+            [3, 1, -2, -4]),
+        doneAction: 2
+    );
+
+    h2Env = EnvGen.kr(
+        Env([0.17, 0.17, 0.44, 0.44], [0.05, 0.25, dur - 0.3], [0, 3, 0])
+    );
+    h4Env = EnvGen.kr(
+        Env([0.018, 0.018, 0.049, 0.049], [0.05, 0.25, dur - 0.3], [0, 2, 0])
+    );
+
+    breathEnv = EnvGen.kr(
+        Env([0.8, 1, 1, 0.9], [0.04, dur - 0.24, 0.2], [2, 0, -2])
+    );
+
+    vibEnv = EnvGen.kr(Env([0, 0, 1], [vibDelay, 0.15]));
+    vibrato = SinOsc.kr(vibRate + LFNoise1.kr(0.3).range(-0.2, 0.2))
+              * currentFreq * vibDepth * vibEnv;
+
+    h1 = SinOsc.ar(currentFreq + vibrato) * 1.0;
+    h2 = SinOsc.ar((currentFreq * 2) + (vibrato * 2)) * h2Env;
+    h3 = SinOsc.ar((currentFreq * 3) + (vibrato * 3)) * 0.015;
+    h4 = SinOsc.ar((currentFreq * 4) + (vibrato * 4)) * h4Env;
+    h5 = SinOsc.ar((currentFreq * 5) + (vibrato * 5)) * 0.02;
+    h6 = SinOsc.ar((currentFreq * 6) + (vibrato * 6)) * 0.012;
+
+    sig = h1 + h2 + h3 + h4 + h5 + h6;
+
+    noise = BPF.ar(PinkNoise.ar, currentFreq * 1.5, 1.2) * breathiness * breathEnv;
+    noise = noise + (BPF.ar(WhiteNoise.ar, currentFreq * 2.5, 0.8) * breathiness * 0.35 * breathEnv);
+    sig = sig + noise;
+
+    sig = sig + (BPF.ar(sig, 700, 0.45) * 0.25);
+    sig = LPF.ar(sig, currentFreq * (1.5 + (brightness * brightnessEnv * 6)));
+    sig = (sig * 0.6).tanh;
+
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).add;
+
+// Shakuhachi V4 Kari - upward pitch bend with brighter timbre
+SynthDef(\shakuhachiV4Kari, {
+    |out = 0, freq = 261, amp = 0.3, dur = 1.5, pan = 0,
+     kariDepth = 0.5, kariTime = 0.15,
+     breathiness = 0.45, brightness = 0.7,
+     vibRate = 4.5, vibDepth = 0.006, vibDelay = 0.4|
+
+    var env, vibEnv, vibrato, sig;
+    var h1, h2, h3, h4, h5, h6;
+    var h2Env, h4Env;
+    var noise, breathEnv;
+    var kariEnv, currentFreq, brightnessEnv;
+
+    // Kari pitch envelope - bend up and settle
+    kariEnv = EnvGen.kr(
+        Env([0, kariDepth, kariDepth * 0.7],
+            [kariTime * 0.4, kariTime * 0.6],
+            \sine)
+    );
+    currentFreq = freq * (2 ** (kariEnv / 12));
+
+    // Brightness increases with kari
+    brightnessEnv = EnvGen.kr(
+        Env([1, 1.4, 1.25], [kariTime * 0.5, dur - kariTime], \sine)
+    );
+
+    env = EnvGen.kr(
+        Env([0, 0.4, 1, 0.85, 0],
+            [0.04, 0.1, dur - 0.34, 0.2],
+            [4, 1, -2, -4]),
+        doneAction: 2
+    );
+
+    h2Env = EnvGen.kr(
+        Env([0.2, 0.2, 0.46, 0.46], [0.03, 0.18, dur - 0.21], [0, 3, 0])
+    );
+    h4Env = EnvGen.kr(
+        Env([0.025, 0.025, 0.06, 0.06], [0.03, 0.18, dur - 0.21], [0, 2, 0])
+    );
+
+    breathEnv = EnvGen.kr(
+        Env([0.7, 0.95, 0.95, 0.85], [0.03, dur - 0.23, 0.2], [2, 0, -2])
+    );
+
+    vibEnv = EnvGen.kr(Env([0, 0, 1], [vibDelay, 0.12]));
+    vibrato = SinOsc.kr(vibRate + LFNoise1.kr(0.3).range(-0.2, 0.2))
+              * currentFreq * vibDepth * vibEnv;
+
+    h1 = SinOsc.ar(currentFreq + vibrato) * 1.0;
+    h2 = SinOsc.ar((currentFreq * 2) + (vibrato * 2)) * h2Env;
+    h3 = SinOsc.ar((currentFreq * 3) + (vibrato * 3)) * 0.02;
+    h4 = SinOsc.ar((currentFreq * 4) + (vibrato * 4)) * h4Env;
+    h5 = SinOsc.ar((currentFreq * 5) + (vibrato * 5)) * 0.028;
+    h6 = SinOsc.ar((currentFreq * 6) + (vibrato * 6)) * 0.018;
+
+    sig = h1 + h2 + h3 + h4 + h5 + h6;
+
+    noise = BPF.ar(PinkNoise.ar, currentFreq * 2, 1.0) * breathiness * breathEnv;
+    noise = noise + (BPF.ar(WhiteNoise.ar, currentFreq * 3.5, 0.7) * breathiness * 0.25 * breathEnv);
+    sig = sig + noise;
+
+    sig = sig + (BPF.ar(sig, 900, 0.4) * 0.2);
+    sig = sig + (BPF.ar(sig, 2400, 0.35) * 0.15);
+    sig = LPF.ar(sig, currentFreq * (2 + (brightness * brightnessEnv * 7)));
+    sig = (sig * 0.6).tanh;
+
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).add;
+
+// Shakuhachi V4 Meri-Kari - cadential gesture (down -> up -> settle)
+SynthDef(\shakuhachiV4MeriKari, {
+    |out = 0, freq = 261, amp = 0.3, dur = 0.8, pan = 0,
+     breathiness = 0.5, brightness = 0.55|
+
+    var env, sig;
+    var h1, h2, h3, h4, h5, h6;
+    var h2Level, noise, breathEnv;
+    var bendEnv, currentFreq, brightnessEnv;
+
+    // Meri-kari bend: down -> up -> settle
+    bendEnv = EnvGen.kr(
+        Env([0, -0.9, 0.25, -0.2, 0],
+            [0.12, 0.08, 0.1, 0.08].normalizeSum * dur,
+            \sine)
+    );
+    currentFreq = freq * (2 ** (bendEnv / 12));
+
+    // Brightness follows bend
+    brightnessEnv = 0.7 + (bendEnv * 0.12);
+
+    env = EnvGen.kr(
+        Env([0, 1, 0.92, 0.8, 0],
+            [0.06, dur * 0.35, dur * 0.4, dur * 0.19],
+            [3, -1, -2, -4]),
+        doneAction: 2
+    );
+
+    h2Level = 0.40;
+
+    breathEnv = EnvGen.kr(
+        Env([0.85, 1, 1, 0.85], [0.04, dur - 0.14, 0.1], [2, 0, -2])
+    );
+
+    h1 = SinOsc.ar(currentFreq) * 1.0;
+    h2 = SinOsc.ar(currentFreq * 2) * h2Level;
+    h3 = SinOsc.ar(currentFreq * 3) * 0.015;
+    h4 = SinOsc.ar(currentFreq * 4) * 0.045;
+    h5 = SinOsc.ar(currentFreq * 5) * 0.02;
+    h6 = SinOsc.ar(currentFreq * 6) * 0.012;
+
+    sig = h1 + h2 + h3 + h4 + h5 + h6;
+
+    noise = BPF.ar(PinkNoise.ar, currentFreq * 1.8, 1.1) * breathiness * breathEnv;
+    noise = noise + (BPF.ar(WhiteNoise.ar, currentFreq * 3, 0.8) * breathiness * 0.3 * breathEnv);
+    sig = sig + noise;
+
+    sig = sig + (BPF.ar(sig, 800, 0.45) * 0.2);
+    sig = LPF.ar(sig, currentFreq * (1.5 + (brightness * brightnessEnv * 5)));
+    sig = (sig * 0.6).tanh;
+
+    Out.ar(out, Pan2.ar(sig * env * amp, pan));
+}).add;
 )
 
 // ============================================================================
